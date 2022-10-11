@@ -23,6 +23,7 @@ dependencies:
   hydrated_bloc: ^8.1.0
   bloc: ^8.1.0
   flutter_bloc: ^8.1.1
+  crypto: ^3.0.2
 
 dev_dependencies:
   flutter_test:

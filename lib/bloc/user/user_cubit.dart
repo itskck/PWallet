@@ -4,6 +4,8 @@ import 'package:pwallet/bloc/user/user_state.dart';
 class UserCubit extends HydratedCubit<UserState> {
   UserCubit() : super(UserLoggedOut());
 
+  void registerUser() {}
+
   @override
   UserState? fromJson(Map<String, dynamic> json) {
     if (json.isNotEmpty) {
