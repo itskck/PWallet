@@ -5,16 +5,18 @@ import 'package:sqlite3/wasm.dart';
 
 part 'wallet_data.g.dart';
 
-class Password extends Table {
+@DataClassName('Password')
+class Passwords extends Table {
   IntColumn get id => integer().autoIncrement()();
   TextColumn get password => text()();
-  IntColumn get idUser => integer().references(User, #id)();
+  IntColumn get idUser => integer().references(Users, #id)();
   TextColumn get webAddress => text()();
   TextColumn get descritpion => text()();
   TextColumn get login => text()();
 }
 
-class User extends Table {
+@DataClassName('User')
+class Users extends Table {
   IntColumn get id => integer().autoIncrement()();
   TextColumn get login => text()();
   TextColumn get passwordHash => text()();
@@ -22,7 +24,7 @@ class User extends Table {
   BoolColumn get isPasswordKeptAsHash => boolean()();
 }
 
-@DriftDatabase(tables: [Password, User])
+@DriftDatabase(tables: [Passwords, Users])
 class MyDatabase extends _$MyDatabase {
   MyDatabase() : super(connect());
 

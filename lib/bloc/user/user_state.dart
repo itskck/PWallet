@@ -1,17 +1,25 @@
 import 'package:equatable/equatable.dart';
+import 'package:pwallet/data/wallet_data.dart';
 
 class UserState extends Equatable {
   @override
   List<Object?> get props => [];
 }
 
-class UserLoggedIn extends UserState {
-  UserLoggedIn(this.id);
-
-  final int id;
+class UserChangingState extends UserState {
+  UserChangingState();
 
   @override
-  List<Object?> get props => [id];
+  List<Object?> get props => [];
+}
+
+class UserLoggedIn extends UserState {
+  UserLoggedIn(this.user);
+
+  final User user;
+
+  @override
+  List<Object?> get props => [user];
 }
 
 class UserLoggedOut extends UserState {

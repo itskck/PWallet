@@ -7,13 +7,13 @@ part of 'wallet_data.dart';
 // **************************************************************************
 
 // ignore_for_file: type=lint
-class UserData extends DataClass implements Insertable<UserData> {
+class User extends DataClass implements Insertable<User> {
   final int id;
   final String login;
   final String passwordHash;
   final String salt;
   final bool isPasswordKeptAsHash;
-  const UserData(
+  const User(
       {required this.id,
       required this.login,
       required this.passwordHash,
@@ -30,8 +30,8 @@ class UserData extends DataClass implements Insertable<UserData> {
     return map;
   }
 
-  UserCompanion toCompanion(bool nullToAbsent) {
-    return UserCompanion(
+  UsersCompanion toCompanion(bool nullToAbsent) {
+    return UsersCompanion(
       id: Value(id),
       login: Value(login),
       passwordHash: Value(passwordHash),
@@ -40,10 +40,10 @@ class UserData extends DataClass implements Insertable<UserData> {
     );
   }
 
-  factory UserData.fromJson(Map<String, dynamic> json,
+  factory User.fromJson(Map<String, dynamic> json,
       {ValueSerializer? serializer}) {
     serializer ??= driftRuntimeOptions.defaultSerializer;
-    return UserData(
+    return User(
       id: serializer.fromJson<int>(json['id']),
       login: serializer.fromJson<String>(json['login']),
       passwordHash: serializer.fromJson<String>(json['passwordHash']),
@@ -64,13 +64,13 @@ class UserData extends DataClass implements Insertable<UserData> {
     };
   }
 
-  UserData copyWith(
+  User copyWith(
           {int? id,
           String? login,
           String? passwordHash,
           String? salt,
           bool? isPasswordKeptAsHash}) =>
-      UserData(
+      User(
         id: id ?? this.id,
         login: login ?? this.login,
         passwordHash: passwordHash ?? this.passwordHash,
@@ -79,7 +79,7 @@ class UserData extends DataClass implements Insertable<UserData> {
       );
   @override
   String toString() {
-    return (StringBuffer('UserData(')
+    return (StringBuffer('User(')
           ..write('id: $id, ')
           ..write('login: $login, ')
           ..write('passwordHash: $passwordHash, ')
@@ -95,7 +95,7 @@ class UserData extends DataClass implements Insertable<UserData> {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      (other is UserData &&
+      (other is User &&
           other.id == this.id &&
           other.login == this.login &&
           other.passwordHash == this.passwordHash &&
@@ -103,20 +103,20 @@ class UserData extends DataClass implements Insertable<UserData> {
           other.isPasswordKeptAsHash == this.isPasswordKeptAsHash);
 }
 
-class UserCompanion extends UpdateCompanion<UserData> {
+class UsersCompanion extends UpdateCompanion<User> {
   final Value<int> id;
   final Value<String> login;
   final Value<String> passwordHash;
   final Value<String> salt;
   final Value<bool> isPasswordKeptAsHash;
-  const UserCompanion({
+  const UsersCompanion({
     this.id = const Value.absent(),
     this.login = const Value.absent(),
     this.passwordHash = const Value.absent(),
     this.salt = const Value.absent(),
     this.isPasswordKeptAsHash = const Value.absent(),
   });
-  UserCompanion.insert({
+  UsersCompanion.insert({
     this.id = const Value.absent(),
     required String login,
     required String passwordHash,
@@ -126,7 +126,7 @@ class UserCompanion extends UpdateCompanion<UserData> {
         passwordHash = Value(passwordHash),
         salt = Value(salt),
         isPasswordKeptAsHash = Value(isPasswordKeptAsHash);
-  static Insertable<UserData> custom({
+  static Insertable<User> custom({
     Expression<int>? id,
     Expression<String>? login,
     Expression<String>? passwordHash,
@@ -143,13 +143,13 @@ class UserCompanion extends UpdateCompanion<UserData> {
     });
   }
 
-  UserCompanion copyWith(
+  UsersCompanion copyWith(
       {Value<int>? id,
       Value<String>? login,
       Value<String>? passwordHash,
       Value<String>? salt,
       Value<bool>? isPasswordKeptAsHash}) {
-    return UserCompanion(
+    return UsersCompanion(
       id: id ?? this.id,
       login: login ?? this.login,
       passwordHash: passwordHash ?? this.passwordHash,
@@ -182,7 +182,7 @@ class UserCompanion extends UpdateCompanion<UserData> {
 
   @override
   String toString() {
-    return (StringBuffer('UserCompanion(')
+    return (StringBuffer('UsersCompanion(')
           ..write('id: $id, ')
           ..write('login: $login, ')
           ..write('passwordHash: $passwordHash, ')
@@ -193,11 +193,11 @@ class UserCompanion extends UpdateCompanion<UserData> {
   }
 }
 
-class $UserTable extends User with TableInfo<$UserTable, UserData> {
+class $UsersTable extends Users with TableInfo<$UsersTable, User> {
   @override
   final GeneratedDatabase attachedDatabase;
   final String? _alias;
-  $UserTable(this.attachedDatabase, [this._alias]);
+  $UsersTable(this.attachedDatabase, [this._alias]);
   final VerificationMeta _idMeta = const VerificationMeta('id');
   @override
   late final GeneratedColumn<int> id = GeneratedColumn<int>(
@@ -233,11 +233,11 @@ class $UserTable extends User with TableInfo<$UserTable, UserData> {
   List<GeneratedColumn> get $columns =>
       [id, login, passwordHash, salt, isPasswordKeptAsHash];
   @override
-  String get aliasedName => _alias ?? 'user';
+  String get aliasedName => _alias ?? 'users';
   @override
-  String get actualTableName => 'user';
+  String get actualTableName => 'users';
   @override
-  VerificationContext validateIntegrity(Insertable<UserData> instance,
+  VerificationContext validateIntegrity(Insertable<User> instance,
       {bool isInserting = false}) {
     final context = VerificationContext();
     final data = instance.toColumns(true);
@@ -278,9 +278,9 @@ class $UserTable extends User with TableInfo<$UserTable, UserData> {
   @override
   Set<GeneratedColumn> get $primaryKey => {id};
   @override
-  UserData map(Map<String, dynamic> data, {String? tablePrefix}) {
+  User map(Map<String, dynamic> data, {String? tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
-    return UserData(
+    return User(
       id: attachedDatabase.options.types
           .read(DriftSqlType.int, data['${effectivePrefix}id'])!,
       login: attachedDatabase.options.types
@@ -296,19 +296,19 @@ class $UserTable extends User with TableInfo<$UserTable, UserData> {
   }
 
   @override
-  $UserTable createAlias(String alias) {
-    return $UserTable(attachedDatabase, alias);
+  $UsersTable createAlias(String alias) {
+    return $UsersTable(attachedDatabase, alias);
   }
 }
 
-class PasswordData extends DataClass implements Insertable<PasswordData> {
+class Password extends DataClass implements Insertable<Password> {
   final int id;
   final String password;
   final int idUser;
   final String webAddress;
   final String descritpion;
   final String login;
-  const PasswordData(
+  const Password(
       {required this.id,
       required this.password,
       required this.idUser,
@@ -327,8 +327,8 @@ class PasswordData extends DataClass implements Insertable<PasswordData> {
     return map;
   }
 
-  PasswordCompanion toCompanion(bool nullToAbsent) {
-    return PasswordCompanion(
+  PasswordsCompanion toCompanion(bool nullToAbsent) {
+    return PasswordsCompanion(
       id: Value(id),
       password: Value(password),
       idUser: Value(idUser),
@@ -338,10 +338,10 @@ class PasswordData extends DataClass implements Insertable<PasswordData> {
     );
   }
 
-  factory PasswordData.fromJson(Map<String, dynamic> json,
+  factory Password.fromJson(Map<String, dynamic> json,
       {ValueSerializer? serializer}) {
     serializer ??= driftRuntimeOptions.defaultSerializer;
-    return PasswordData(
+    return Password(
       id: serializer.fromJson<int>(json['id']),
       password: serializer.fromJson<String>(json['password']),
       idUser: serializer.fromJson<int>(json['idUser']),
@@ -363,14 +363,14 @@ class PasswordData extends DataClass implements Insertable<PasswordData> {
     };
   }
 
-  PasswordData copyWith(
+  Password copyWith(
           {int? id,
           String? password,
           int? idUser,
           String? webAddress,
           String? descritpion,
           String? login}) =>
-      PasswordData(
+      Password(
         id: id ?? this.id,
         password: password ?? this.password,
         idUser: idUser ?? this.idUser,
@@ -380,7 +380,7 @@ class PasswordData extends DataClass implements Insertable<PasswordData> {
       );
   @override
   String toString() {
-    return (StringBuffer('PasswordData(')
+    return (StringBuffer('Password(')
           ..write('id: $id, ')
           ..write('password: $password, ')
           ..write('idUser: $idUser, ')
@@ -397,7 +397,7 @@ class PasswordData extends DataClass implements Insertable<PasswordData> {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      (other is PasswordData &&
+      (other is Password &&
           other.id == this.id &&
           other.password == this.password &&
           other.idUser == this.idUser &&
@@ -406,14 +406,14 @@ class PasswordData extends DataClass implements Insertable<PasswordData> {
           other.login == this.login);
 }
 
-class PasswordCompanion extends UpdateCompanion<PasswordData> {
+class PasswordsCompanion extends UpdateCompanion<Password> {
   final Value<int> id;
   final Value<String> password;
   final Value<int> idUser;
   final Value<String> webAddress;
   final Value<String> descritpion;
   final Value<String> login;
-  const PasswordCompanion({
+  const PasswordsCompanion({
     this.id = const Value.absent(),
     this.password = const Value.absent(),
     this.idUser = const Value.absent(),
@@ -421,7 +421,7 @@ class PasswordCompanion extends UpdateCompanion<PasswordData> {
     this.descritpion = const Value.absent(),
     this.login = const Value.absent(),
   });
-  PasswordCompanion.insert({
+  PasswordsCompanion.insert({
     this.id = const Value.absent(),
     required String password,
     required int idUser,
@@ -433,7 +433,7 @@ class PasswordCompanion extends UpdateCompanion<PasswordData> {
         webAddress = Value(webAddress),
         descritpion = Value(descritpion),
         login = Value(login);
-  static Insertable<PasswordData> custom({
+  static Insertable<Password> custom({
     Expression<int>? id,
     Expression<String>? password,
     Expression<int>? idUser,
@@ -451,14 +451,14 @@ class PasswordCompanion extends UpdateCompanion<PasswordData> {
     });
   }
 
-  PasswordCompanion copyWith(
+  PasswordsCompanion copyWith(
       {Value<int>? id,
       Value<String>? password,
       Value<int>? idUser,
       Value<String>? webAddress,
       Value<String>? descritpion,
       Value<String>? login}) {
-    return PasswordCompanion(
+    return PasswordsCompanion(
       id: id ?? this.id,
       password: password ?? this.password,
       idUser: idUser ?? this.idUser,
@@ -494,7 +494,7 @@ class PasswordCompanion extends UpdateCompanion<PasswordData> {
 
   @override
   String toString() {
-    return (StringBuffer('PasswordCompanion(')
+    return (StringBuffer('PasswordsCompanion(')
           ..write('id: $id, ')
           ..write('password: $password, ')
           ..write('idUser: $idUser, ')
@@ -506,12 +506,12 @@ class PasswordCompanion extends UpdateCompanion<PasswordData> {
   }
 }
 
-class $PasswordTable extends Password
-    with TableInfo<$PasswordTable, PasswordData> {
+class $PasswordsTable extends Passwords
+    with TableInfo<$PasswordsTable, Password> {
   @override
   final GeneratedDatabase attachedDatabase;
   final String? _alias;
-  $PasswordTable(this.attachedDatabase, [this._alias]);
+  $PasswordsTable(this.attachedDatabase, [this._alias]);
   final VerificationMeta _idMeta = const VerificationMeta('id');
   @override
   late final GeneratedColumn<int> id = GeneratedColumn<int>(
@@ -530,7 +530,7 @@ class $PasswordTable extends Password
       'id_user', aliasedName, false,
       type: DriftSqlType.int,
       requiredDuringInsert: true,
-      defaultConstraints: 'REFERENCES "user" ("id")');
+      defaultConstraints: 'REFERENCES "users" ("id")');
   final VerificationMeta _webAddressMeta = const VerificationMeta('webAddress');
   @override
   late final GeneratedColumn<String> webAddress = GeneratedColumn<String>(
@@ -551,11 +551,11 @@ class $PasswordTable extends Password
   List<GeneratedColumn> get $columns =>
       [id, password, idUser, webAddress, descritpion, login];
   @override
-  String get aliasedName => _alias ?? 'password';
+  String get aliasedName => _alias ?? 'passwords';
   @override
-  String get actualTableName => 'password';
+  String get actualTableName => 'passwords';
   @override
-  VerificationContext validateIntegrity(Insertable<PasswordData> instance,
+  VerificationContext validateIntegrity(Insertable<Password> instance,
       {bool isInserting = false}) {
     final context = VerificationContext();
     final data = instance.toColumns(true);
@@ -602,9 +602,9 @@ class $PasswordTable extends Password
   @override
   Set<GeneratedColumn> get $primaryKey => {id};
   @override
-  PasswordData map(Map<String, dynamic> data, {String? tablePrefix}) {
+  Password map(Map<String, dynamic> data, {String? tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
-    return PasswordData(
+    return Password(
       id: attachedDatabase.options.types
           .read(DriftSqlType.int, data['${effectivePrefix}id'])!,
       password: attachedDatabase.options.types
@@ -621,18 +621,18 @@ class $PasswordTable extends Password
   }
 
   @override
-  $PasswordTable createAlias(String alias) {
-    return $PasswordTable(attachedDatabase, alias);
+  $PasswordsTable createAlias(String alias) {
+    return $PasswordsTable(attachedDatabase, alias);
   }
 }
 
 abstract class _$MyDatabase extends GeneratedDatabase {
   _$MyDatabase(QueryExecutor e) : super(e);
-  late final $UserTable user = $UserTable(this);
-  late final $PasswordTable password = $PasswordTable(this);
+  late final $UsersTable users = $UsersTable(this);
+  late final $PasswordsTable passwords = $PasswordsTable(this);
   @override
   Iterable<TableInfo<Table, dynamic>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
   @override
-  List<DatabaseSchemaEntity> get allSchemaEntities => [user, password];
+  List<DatabaseSchemaEntity> get allSchemaEntities => [users, passwords];
 }

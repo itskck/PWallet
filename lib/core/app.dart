@@ -16,7 +16,7 @@ class App extends StatelessWidget {
         ),
         debugShowCheckedModeBanner: false,
         title: 'Password wallet',
-        routerConfig: MyRouter.goRouter,
+        routerConfig: MyRouter.routes,
       ),
     );
   }
