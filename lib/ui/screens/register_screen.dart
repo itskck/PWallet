@@ -14,7 +14,8 @@ class RegisterScreen extends StatefulWidget {
 
 class _RegisterScreenState extends State<RegisterScreen> {
   late bool checkboxState;
-
+  final passwordController = TextEditingController();
+  final loginController = TextEditingController();
   @override
   void initState() {
     super.initState();
@@ -24,13 +25,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
   @override
   Widget build(BuildContext context) {
     final width = MediaQuery.of(context).size.width * 0.3;
-    final passwordController = TextEditingController();
-    final loginController = TextEditingController();
-    print(BlocProvider.of<UserCubit>(context).state.toString());
+
     return BlocListener<UserCubit, UserState>(
       listener: (context, state) {
-        if (state is UserLoggedIn) {
-          GoRouter.of(context).go('/home');
+        if (state is UserRegisterDone) {
+          GoRouter.of(context).go('/');
         }
       },
       child: Scaffold(
@@ -48,21 +47,23 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     style: Theme.of(context).textTheme.headline2,
                   ),
                 ),
-                const Padding(
-                  padding: EdgeInsets.all(10),
+                Padding(
+                  padding: const EdgeInsets.all(10),
                   child: TextField(
-                    decoration: InputDecoration(
+                    controller: loginController,
+                    decoration: const InputDecoration(
                       border: OutlineInputBorder(),
                       labelText: 'Login',
                       hintText: 'Enter your login',
                     ),
                   ),
                 ),
-                const Padding(
-                  padding: EdgeInsets.all(10),
+                Padding(
+                  padding: const EdgeInsets.all(10),
                   child: TextField(
+                    controller: passwordController,
                     obscureText: true,
-                    decoration: InputDecoration(
+                    decoration: const InputDecoration(
                       border: OutlineInputBorder(),
                       labelText: 'Password',
                       hintText: 'Enter your master password',

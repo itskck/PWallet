@@ -28,6 +28,26 @@ class Users extends Table {
 class MyDatabase extends _$MyDatabase {
   MyDatabase() : super(connect());
 
+  Future<int> addUser(UsersCompanion entry) {
+    return into(users).insert(entry);
+  }
+
+  Future<User> getUserByLogin(String login) async {
+    final user = await (select(users)
+          ..where(
+            (tbl) => tbl.login.equals(login),
+          )
+          ..limit(1))
+        .getSingle();
+
+    return user;
+  }
+
+  Future<int> getUserCount() async {
+    final list = await select(users).get();
+    return list.length;
+  }
+
   @override
   int get schemaVersion => 1;
 

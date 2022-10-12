@@ -1,5 +1,6 @@
 import 'dart:developer';
 
+import 'package:drift/drift.dart';
 import 'package:hydrated_bloc/hydrated_bloc.dart';
 import 'package:pwallet/bloc/user/user_state.dart';
 import 'package:pwallet/constants.dart';
@@ -32,23 +33,16 @@ class UserCubit extends Cubit<UserState> {
       } else {
         throw Exception('not supported yet');
       }
-      final companion = UsersCompanion.insert(
-        login: login,
-        passwordHash: md,
-        salt: salt,
-        isPasswordKeptAsHash: useSha,
+      final companion = UsersCompanion(
+        login: Value(login),
+        passwordHash: Value(md),
+        salt: Value(salt),
+        isPasswordKeptAsHash: Value(useSha),
       );
 
-      await database.into(database.users).insert(companion);
+      await database.addUser(companion);
 
-      final userQuery = database.select(database.users)
-        ..where(
-          (tbl) => tbl.login.equals(login),
-        )
-        ..limit(1);
-      final user = await userQuery.getSingle();
-
-      emit(UserLoggedIn(user));
+      emit(UserRegisterDone());
     } catch (e, s) {
       emit(UserLoggedOut());
       log(
@@ -63,12 +57,8 @@ class UserCubit extends Cubit<UserState> {
     required String login,
   }) async {
     try {
-      final userQuery = database.select(database.users)
-        ..where(
-          (tbl) => tbl.login.equals(login),
-        )
-        ..limit(1);
-      final user = await userQuery.getSingle();
+      final user = await database.getUserByLogin(login);
+
       var md = '';
 
       if (user.isPasswordKeptAsHash) {

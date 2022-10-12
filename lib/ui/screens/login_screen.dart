@@ -26,13 +26,10 @@ class LoginScreen extends StatelessWidget {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Padding(
-                    padding: const EdgeInsets.only(top: 50),
-                    child: Lottie.network(
-                      'https://assets3.lottiefiles.com/packages/lf20_4eynavd0.json',
-                      height: 400,
-                      width: 400,
-                    ),
+                  Lottie.network(
+                    'https://assets3.lottiefiles.com/packages/lf20_4eynavd0.json',
+                    height: 400,
+                    width: 400,
                   ),
                   Padding(
                     padding: const EdgeInsets.only(bottom: 50),
@@ -70,25 +67,29 @@ class LoginScreen extends StatelessWidget {
                     child: const Text('Create new account'),
                   ),
                   const SizedBox(
-                    height: 50,
+                    height: 100,
                   ),
-                  ElevatedButton(
-                    onPressed: () {
-                      BlocProvider.of<UserCubit>(context).loginUser(
-                        password: passwordController.text,
-                        login: loginController.text,
-                      );
-                    },
-                    style: ElevatedButton.styleFrom(
-                      fixedSize: const Size(400, 40),
-                    ),
-                    child: const Text('Login'),
-                  )
                 ],
               ),
             ),
           ),
         ),
+        floatingActionButton: Padding(
+          padding: const EdgeInsets.only(bottom: 20),
+          child: ElevatedButton(
+            onPressed: () {
+              BlocProvider.of<UserCubit>(context).loginUser(
+                password: passwordController.text,
+                login: loginController.text,
+              );
+            },
+            style: ElevatedButton.styleFrom(
+              fixedSize: const Size(400, 40),
+            ),
+            child: const Text('Login'),
+          ),
+        ),
+        floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       ),
     );
   }
