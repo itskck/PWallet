@@ -1,5 +1,6 @@
 import 'package:drift/drift.dart';
 import 'package:drift/wasm.dart';
+import 'package:drift/web.dart';
 import 'package:http/http.dart' as http;
 import 'package:sqlite3/wasm.dart';
 
@@ -26,7 +27,7 @@ class Users extends Table {
 
 @DriftDatabase(tables: [Passwords, Users])
 class MyDatabase extends _$MyDatabase {
-  MyDatabase() : super(connect());
+  MyDatabase() : super(connectWeb());
 
   Future<int> addUser(UsersCompanion entry) {
     return into(users).insert(entry);
@@ -49,14 +50,28 @@ class MyDatabase extends _$MyDatabase {
   }
 
   @override
-  int get schemaVersion => 1;
+  int get schemaVersion => 3;
 
   @override
   MigrationStrategy get migration {
     return MigrationStrategy(
-      beforeOpen: (details) => customStatement('PRAGMA foreign_keys = ON'),
+      beforeOpen: (details) async {
+        await customStatement('PRAGMA foreign_keys = ON');
+        if (details.wasCreated) {
+          print('siemano');
+        }
+      },
     );
   }
+}
+
+QueryExecutor connectWeb() {
+  return LazyDatabase(() async {
+    return WebDatabase.withStorage(
+      await DriftWebStorage.indexedDbIfSupported('12345'),
+      logStatements: true,
+    );
+  });
 }
 
 QueryExecutor connect() {
@@ -65,7 +80,7 @@ QueryExecutor connect() {
     final response = await http.get(Uri.parse('sqlite3.wasm'));
     // Create a virtual file system backed by IndexedDb with everything in
     // `/drift/my_app/` being persisted.
-    final fs = await IndexedDbFileSystem.open(dbName: 'my_app');
+    final fs = await IndexedDbFileSystem.open(dbName: 'app.db');
     final sqlite3 = await WasmSqlite3.load(
       response.bodyBytes,
       SqliteEnvironment(fileSystem: fs),

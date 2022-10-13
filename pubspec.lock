@@ -79,7 +79,7 @@ packages:
     source: hosted
     version: "3.1.0"
   build_resolvers:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: build_resolvers
       url: "https://pub.dartlang.org"
@@ -168,7 +168,7 @@ packages:
       name: convert
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "3.0.2"
+    version: "3.1.1"
   crypto:
     dependency: "direct main"
     description:
@@ -183,6 +183,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "2.2.4"
+  db_viewer:
+    dependency: transitive
+    description:
+      name: db_viewer
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "1.0.3"
   drift:
     dependency: "direct main"
     description:
@@ -190,6 +197,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "2.2.0"
+  drift_db_viewer:
+    dependency: "direct main"
+    description:
+      name: drift_db_viewer
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "2.0.0"
   drift_dev:
     dependency: "direct dev"
     description:
@@ -587,7 +601,7 @@ packages:
       name: source_gen
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "1.2.5"
+    version: "1.2.6"
   source_span:
     dependency: transitive
     description:
