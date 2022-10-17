@@ -19,22 +19,30 @@ class Options extends StatelessWidget {
           BlocBuilder<PasswordCubit, PasswordState>(
             builder: (context, state) {
               if (state is PasswordData) {
-                return ListView.builder(
-                  shrinkWrap: true,
-                  itemCount: state.passwords.length,
-                  itemBuilder: (BuildContext context, int index) {
-                    return PasswordOpener(
-                      password: state.passwords[index],
-                    );
-                  },
-                );
+                if (state.passwords.isNotEmpty) {
+                  return ListView.builder(
+                    shrinkWrap: true,
+                    itemCount: state.passwords.length,
+                    itemBuilder: (BuildContext context, int index) {
+                      return PasswordOpener(
+                        password: state.passwords[index],
+                      );
+                    },
+                  );
+                } else {
+                  return const Text('No passwords added.');
+                }
               } else {
                 return const SizedBox();
               }
             },
           ),
+          const Padding(
+            padding: EdgeInsets.only(top: 50),
+            child: Text('Actions'),
+          ),
           const Divider(),
-          ElevatedButton(
+          TextButton(
             onPressed: () => BlocProvider.of<UserCubit>(context).logOut(),
             child: const Text('Log out'),
           )

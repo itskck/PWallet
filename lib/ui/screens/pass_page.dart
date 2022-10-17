@@ -39,6 +39,7 @@ class _PassPageState extends State<PassPage> {
         body: Padding(
           padding: const EdgeInsets.all(32),
           child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const Expanded(
                 child: Options(),

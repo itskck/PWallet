@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-showDialogBox(BuildContext context, Widget content) {
-  showDialog(
+void showDialogBox(BuildContext context, Widget content) {
+  showDialog<Widget>(
     context: context,
     builder: (context) => content,
   );
