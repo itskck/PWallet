@@ -2,9 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:http/http.dart';
+import 'package:pwallet/bloc/password/password_cubit.dart';
 import 'package:pwallet/bloc/user/user_cubit.dart';
 import 'package:pwallet/bloc/user/user_state.dart';
 import 'package:pwallet/data/wallet_data.dart';
+import 'package:pwallet/ui/widgets/options.dart';
+import 'package:pwallet/ui/widgets/pass_add_fab.dart';
+import 'package:pwallet/ui/widgets/password_shown.dart';
 
 class PassPage extends StatefulWidget {
   const PassPage({
@@ -31,15 +35,26 @@ class _PassPageState extends State<PassPage> {
         }
       },
       child: Scaffold(
-        body: Center(
-          child: Column(
+        floatingActionButton: const PassAddFab(),
+        body: Padding(
+          padding: const EdgeInsets.all(32),
+          child: Row(
             children: [
-              Text('Siemanko ${widget.user!.login}'),
-              ElevatedButton(
-                  onPressed: () {
-                    BlocProvider.of<UserCubit>(context).logOut();
+              const Expanded(
+                child: Options(),
+              ),
+              Expanded(
+                flex: 2,
+                child: BlocBuilder<PasswordCubit, PasswordState>(
+                  builder: (context, state) {
+                    if (state is PasswordData) {
+                      return state.passwordShow;
+                    } else {
+                      return const SizedBox();
+                    }
                   },
-                  child: Text('Log out'))
+                ),
+              ),
             ],
           ),
         ),

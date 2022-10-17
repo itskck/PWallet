@@ -16,15 +16,18 @@ class Encrypter {
     return hash;
   }
 
-  // static String generateHMAC(String text) {
-  //   Hash hash;
-  //   hash = sha512.convert(utf8.encode(text));
-  //   final Hmac hmac = Hmac(hash, 'key');
-  //   return hash;
-  // }
+  static String generateHMAC(String text, String key) {
+    String hash;
+
+    final hmac = Hmac(sha512, utf8.encode(key));
+    final digest = hmac.convert(utf8.encode(text));
+    hash = digest.toString();
+    print('hmac is $hash');
+    return hash;
+  }
 
   static String getRandomString(int length) {
-    final Random rnd = Random();
+    final rnd = Random();
     return String.fromCharCodes(
       Iterable.generate(
         length,

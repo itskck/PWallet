@@ -27,7 +27,7 @@ class Users extends Table {
 
 @DriftDatabase(tables: [Passwords, Users])
 class MyDatabase extends _$MyDatabase {
-  MyDatabase() : super(connectWeb());
+  MyDatabase() : super(WebDatabase('database'));
 
   Future<int> addUser(UsersCompanion entry) {
     return into(users).insert(entry);
@@ -49,6 +49,20 @@ class MyDatabase extends _$MyDatabase {
     return list.length;
   }
 
+  Future<int> addPassword(PasswordsCompanion entry) {
+    return into(passwords).insert(entry);
+  }
+
+  Future<List<Password>> getAllUserPasswords(int userId) {
+    return (select(passwords)..where((tbl) => tbl.idUser.equals(userId))).get();
+  }
+
+  void removePassword(Password password) {
+    return delete(passwords).where((tbl) {
+      return tbl.webAddress.equals(password.webAddress);
+    });
+  }
+
   @override
   int get schemaVersion => 3;
 
@@ -57,36 +71,7 @@ class MyDatabase extends _$MyDatabase {
     return MigrationStrategy(
       beforeOpen: (details) async {
         await customStatement('PRAGMA foreign_keys = ON');
-        if (details.wasCreated) {
-          print('siemano');
-        }
       },
     );
   }
-}
-
-QueryExecutor connectWeb() {
-  return LazyDatabase(() async {
-    return WebDatabase.withStorage(
-      await DriftWebStorage.indexedDbIfSupported('12345'),
-      logStatements: true,
-    );
-  });
-}
-
-QueryExecutor connect() {
-  return LazyDatabase(() async {
-    // Load wasm bundle
-    final response = await http.get(Uri.parse('sqlite3.wasm'));
-    // Create a virtual file system backed by IndexedDb with everything in
-    // `/drift/my_app/` being persisted.
-    final fs = await IndexedDbFileSystem.open(dbName: 'app.db');
-    final sqlite3 = await WasmSqlite3.load(
-      response.bodyBytes,
-      SqliteEnvironment(fileSystem: fs),
-    );
-
-    // Then, open a database inside that persisted folder.
-    return WasmDatabase(sqlite3: sqlite3, path: '/drift/my_app/app.db');
-  });
 }

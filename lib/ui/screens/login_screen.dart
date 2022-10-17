@@ -27,11 +27,11 @@ class LoginScreen extends StatelessWidget {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  // Lottie.network(
-                  //   'https://assets3.lottiefiles.com/packages/lf20_4eynavd0.json',
-                  //   height: 400,
-                  //   width: 400,
-                  // ),
+                  Lottie.network(
+                    'https://assets3.lottiefiles.com/packages/lf20_4eynavd0.json',
+                    height: 400,
+                    width: 400,
+                  ),
                   Padding(
                     padding: const EdgeInsets.only(bottom: 50),
                     child: Text(
@@ -66,18 +66,6 @@ class LoginScreen extends StatelessWidget {
                   TextButton(
                     onPressed: () => GoRouter.of(context).go('/register'),
                     child: const Text('Create new account'),
-                  ),
-                  ElevatedButton(
-                    onPressed: () {
-                      final db = BlocProvider.of<UserCubit>(context)
-                          .database; //This should be a singleton
-                      Navigator.of(context).push(
-                        MaterialPageRoute(
-                          builder: (context) => DriftDbViewer(db),
-                        ),
-                      );
-                    },
-                    child: Text('DB'),
                   ),
                   const SizedBox(
                     height: 100,

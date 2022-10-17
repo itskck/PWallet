@@ -20,6 +20,11 @@ class UserCubit extends Cubit<UserState> {
     }
   }
 
+  Future<List<Password>> get userPasswords async {
+    final passwords = await database.getAllUserPasswords(currentUser!.id);
+    return passwords;
+  }
+
   Future<void> registerUser({
     required bool useSha,
     required String password,
@@ -31,7 +36,7 @@ class UserCubit extends Cubit<UserState> {
       if (useSha) {
         md = Encrypter.generateSHA512('$salt$pepper$password');
       } else {
-        throw Exception('not supported yet');
+        md = Encrypter.generateHMAC(password, salt);
       }
       final companion = UsersCompanion(
         login: Value(login),
@@ -64,7 +69,7 @@ class UserCubit extends Cubit<UserState> {
       if (user.isPasswordKeptAsHash) {
         md = Encrypter.generateSHA512('${user.salt}$pepper$password');
       } else {
-        throw Exception('not supported yet');
+        md = Encrypter.generateHMAC(password, user.salt);
       }
 
       if (md == user.passwordHash) {
