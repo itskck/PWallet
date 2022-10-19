@@ -3,6 +3,8 @@ import 'dart:developer';
 import 'dart:math';
 
 import 'package:crypto/crypto.dart';
+
+import 'package:encrypt/encrypt.dart' as en;
 import 'package:flutter/foundation.dart';
 import 'package:pwallet/constants.dart';
 
@@ -16,7 +18,13 @@ class Encrypter {
     return hash;
   }
 
-  static void decryptFromSHA512(String hash, String salt) {}
+  static String decryptFromSHA512(String hash, String salt) {
+    final key = en.Key.fromUtf8(salt);
+    final encrypter = en.Encrypter(en.AES(key, mode: en.AESMode.cbc));
+
+    var text = encrypter.decrypt(en.Encrypted.from64(hash));
+    return text;
+  }
 
   static String generateHMAC(String text, String key) {
     String hash;

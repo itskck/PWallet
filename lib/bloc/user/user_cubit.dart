@@ -7,7 +7,6 @@ import 'package:hydrated_bloc/hydrated_bloc.dart';
 import 'package:pwallet/bloc/user/user_state.dart';
 import 'package:pwallet/constants.dart';
 import 'package:pwallet/data/wallet_data.dart';
-import 'package:pwallet/ui/widgets/password_shown.dart';
 import 'package:pwallet/utils/encrypter.dart';
 import 'package:pwallet/utils/utils.dart';
 
@@ -34,10 +33,11 @@ class UserCubit extends Cubit<UserState> {
     required String login,
   }) async {
     try {
-      final salt = Encrypter.getRandomString(password.length);
-      var md = '123';
+      final salt = Encrypter.getRandomString(26);
+      var md = '';
       if (useSha) {
         md = Encrypter.generateSHA512('$salt$pepper$password');
+        print(Encrypter.decryptFromSHA512(md, salt));
       } else {
         md = Encrypter.generateHMAC(password, salt);
       }
