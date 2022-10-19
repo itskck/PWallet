@@ -4,6 +4,7 @@ import 'package:pwallet/bloc/user/user_cubit.dart';
 import 'package:pwallet/bloc/user/user_state.dart';
 import 'package:pwallet/ui/screens/login_screen.dart';
 import 'package:pwallet/ui/screens/pass_page.dart';
+import 'package:pwallet/ui/screens/password_add_screen.dart';
 import 'package:pwallet/ui/screens/register_screen.dart';
 
 class MyRouter {
@@ -44,6 +45,17 @@ class MyRouter {
           }
         },
       ),
+      GoRoute(
+        path: '/add',
+        builder: (context, state) => PasswordAddScreen(),
+        redirect: (context, state) {
+          if (BlocProvider.of<UserCubit>(context).state is UserLoggedOut) {
+            return '/';
+          } else {
+            return null;
+          }
+        },
+      )
     ],
   );
 }

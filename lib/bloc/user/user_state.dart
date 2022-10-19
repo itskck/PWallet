@@ -1,4 +1,5 @@
 import 'package:equatable/equatable.dart';
+import 'package:flutter/material.dart';
 import 'package:pwallet/data/wallet_data.dart';
 
 class UserState extends Equatable {
@@ -14,12 +15,14 @@ class UserChangingState extends UserState {
 }
 
 class UserLoggedIn extends UserState {
-  UserLoggedIn(this.user);
+  UserLoggedIn(this.user, this.passwords, this.passwordShow);
 
   final User user;
+  final List<Password> passwords;
+  final Password? passwordShow;
 
   @override
-  List<Object?> get props => [user];
+  List<Object?> get props => [user, passwords, passwordShow];
 }
 
 class UserRegisterDone extends UserState {

@@ -70,6 +70,16 @@ class LoginScreen extends StatelessWidget {
                       onPressed: () => GoRouter.of(context).go('/register'),
                       child: const Text('Create new account'),
                     ),
+                    TextButton(
+                        onPressed: () {
+                          Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (context) => DriftDbViewer(
+                                  BlocProvider.of<UserCubit>(context).database),
+                            ),
+                          );
+                        },
+                        child: Text('e')),
                     const SizedBox(
                       height: 100,
                     ),

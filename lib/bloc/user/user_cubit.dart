@@ -1,11 +1,15 @@
 import 'dart:developer';
 
 import 'package:drift/drift.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hydrated_bloc/hydrated_bloc.dart';
 import 'package:pwallet/bloc/user/user_state.dart';
 import 'package:pwallet/constants.dart';
 import 'package:pwallet/data/wallet_data.dart';
+import 'package:pwallet/ui/widgets/password_shown.dart';
 import 'package:pwallet/utils/encrypter.dart';
+import 'package:pwallet/utils/utils.dart';
 
 class UserCubit extends Cubit<UserState> {
   UserCubit() : super(UserLoggedOut());
@@ -21,8 +25,7 @@ class UserCubit extends Cubit<UserState> {
   }
 
   Future<List<Password>> get userPasswords async {
-    final passwords = await database.getAllUserPasswords(currentUser!.id);
-    return passwords;
+    return database.getAllUserPasswords(currentUser!.id);
   }
 
   Future<void> registerUser({
@@ -57,6 +60,32 @@ class UserCubit extends Cubit<UserState> {
     }
   }
 
+  Future<void> addPassword({
+    required String password,
+    required String address,
+    required String description,
+    required String login,
+  }) async {
+    final companion = PasswordsCompanion(
+      password: Value(password),
+      idUser: Value(currentUser!.id),
+      webAddress: Value(address),
+      descritpion: Value(description),
+      login: Value(login),
+    );
+    await database.addPassword(companion);
+    final passwords = await database.getAllUserPasswords(
+      currentUser!.id,
+    );
+    emit(
+      UserLoggedIn(
+        currentUser!,
+        passwords,
+        null,
+      ),
+    );
+  }
+
   Future<void> loginUser({
     required String password,
     required String login,
@@ -73,11 +102,19 @@ class UserCubit extends Cubit<UserState> {
       }
 
       if (md == user.passwordHash) {
-        emit(UserLoggedIn(user));
+        final passwords = await database.getAllUserPasswords(user.id);
+        emit(
+          UserLoggedIn(
+            user,
+            passwords,
+            null,
+          ),
+        );
       } else {
         emit(UserLoggedOut());
       }
     } catch (e, s) {
+      showToast('Error while logging in');
       emit(UserLoggedOut());
       log(
         'Error while loging in',
@@ -86,7 +123,20 @@ class UserCubit extends Cubit<UserState> {
     }
   }
 
-  Future<void> logOut() async {
+  Future<void> setShownWidget(Password password) async {
+    final passwords = await userPasswords;
+    final user = currentUser!;
+
+    emit(
+      UserLoggedIn(
+        user,
+        passwords,
+        password,
+      ),
+    );
+  }
+
+  Future<void> logOut(BuildContext context) async {
     try {
       emit(UserLoggedOut());
     } catch (e, s) {

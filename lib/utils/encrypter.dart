@@ -16,6 +16,8 @@ class Encrypter {
     return hash;
   }
 
+  static void decryptFromSHA512(String hash, String salt) {}
+
   static String generateHMAC(String text, String key) {
     String hash;
 
