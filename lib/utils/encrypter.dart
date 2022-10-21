@@ -20,9 +20,9 @@ class Encrypter {
 
   static String decryptFromSHA512(String hash, String salt) {
     final key = en.Key.fromUtf8(salt);
-    final encrypter = en.Encrypter(en.AES(key, mode: en.AESMode.cbc));
+    final encrypter = en.Encrypter(en.AES(key, mode: en.AESMode.cfb64));
 
-    var text = encrypter.decrypt(en.Encrypted.from64(hash));
+    final text = encrypter.decrypt(en.Encrypted.from64(hash));
     return text;
   }
 
