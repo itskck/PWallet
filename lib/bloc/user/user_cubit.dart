@@ -4,6 +4,7 @@ import 'package:drift/drift.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hydrated_bloc/hydrated_bloc.dart';
+import 'package:path/path.dart';
 import 'package:pwallet/bloc/user/user_state.dart';
 import 'package:pwallet/constants.dart';
 import 'package:pwallet/data/wallet_data.dart';
@@ -33,11 +34,15 @@ class UserCubit extends Cubit<UserState> {
     required String login,
   }) async {
     try {
-      final salt = Encrypter.getRandomString(26);
+      final users = await database.getAllUsers();
+      if (users.any((element) => element.login == login)) {
+        showBadToast('User with that login already exists');
+        throw Exception();
+      }
+      final salt = Encrypter.getRandomString(32);
       var md = '';
       if (useSha) {
         md = Encrypter.generateSHA512('$salt$pepper$password');
-        print(Encrypter.decryptFromSHA512(md, salt));
       } else {
         md = Encrypter.generateHMAC(password, salt);
       }
@@ -66,8 +71,9 @@ class UserCubit extends Cubit<UserState> {
     required String description,
     required String login,
   }) async {
+    final hash = Encrypter.encryptPassword(password, currentUser!.salt);
     final companion = PasswordsCompanion(
-      password: Value(password),
+      password: Value(hash),
       idUser: Value(currentUser!.id),
       webAddress: Value(address),
       descritpion: Value(description),
@@ -84,6 +90,71 @@ class UserCubit extends Cubit<UserState> {
         null,
       ),
     );
+  }
+
+  Future<void> changePassword({
+    required String oldPassword,
+    required String newPassword,
+  }) async {
+    try {
+      var md = '';
+
+      if (currentUser!.isPasswordKeptAsHash) {
+        md =
+            Encrypter.generateSHA512('${currentUser!.salt}$pepper$oldPassword');
+      } else {
+        md = Encrypter.generateHMAC(oldPassword, currentUser!.salt);
+      }
+
+      if (md == currentUser!.passwordHash) {
+        final newSalt = Encrypter.getRandomString(32);
+        if (currentUser!.isPasswordKeptAsHash) {
+          md = Encrypter.generateSHA512('$newSalt$pepper$newPassword');
+        } else {
+          md = Encrypter.generateHMAC(newPassword, newSalt);
+        }
+
+        final passwords = await database.getAllUserPasswords(currentUser!.id);
+        database.removeAllUserPasswords(currentUser!.id);
+        await database.updatePassword(md, newSalt, currentUser!.id);
+        List<Password> tempPasswords = [];
+        List<String> decryptedPasswords = [];
+
+        for (int i = 0; i < passwords.length; i++) {
+          decryptedPasswords.add(
+            Encrypter.decryptPassword(passwords[i].password, currentUser!.salt),
+          );
+          tempPasswords.add(
+            passwords[i].copyWith(
+              password:
+                  Encrypter.encryptPassword(decryptedPasswords[i], newSalt),
+            ),
+          );
+          await database.addPassword(
+            PasswordsCompanion(
+              password: Value(tempPasswords[i].password),
+              idUser: Value(currentUser!.id),
+              webAddress: Value(tempPasswords[i].webAddress),
+              descritpion: Value(tempPasswords[i].descritpion),
+              login: Value(tempPasswords[i].login),
+            ),
+          );
+        }
+
+        showGoodToast('Password changed');
+        emit(UserLoggedOut());
+      } else {
+        showBadToast(
+          'Error! Entered password is not maching your current password.',
+        );
+        throw Exception();
+      }
+    } catch (e, s) {
+      log(
+        'Error while changing password',
+        stackTrace: s,
+      );
+    }
   }
 
   Future<void> loginUser({
@@ -114,7 +185,7 @@ class UserCubit extends Cubit<UserState> {
         emit(UserLoggedOut());
       }
     } catch (e, s) {
-      showToast('Error while logging in');
+      showBadToast('Error while logging in');
       emit(UserLoggedOut());
       log(
         'Error while loging in',

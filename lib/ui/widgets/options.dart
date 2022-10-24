@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import 'package:pwallet/bloc/user/user_cubit.dart';
 import 'package:pwallet/bloc/user/user_state.dart';
 import 'package:pwallet/data/wallet_data.dart';
@@ -43,7 +44,9 @@ class Options extends StatelessWidget {
           ),
           const Divider(),
           ListTile(
-            onTap: () {},
+            onTap: () {
+              GoRouter.of(context).push('/change-password');
+            },
             leading: Text(
               'Change password',
               style: TextStyle(color: Theme.of(context).primaryColor),

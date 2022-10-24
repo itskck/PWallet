@@ -3,12 +3,13 @@ import 'dart:developer';
 import 'dart:math';
 
 import 'package:crypto/crypto.dart';
+import 'package:encrypt/encrypt.dart' as e;
 
-import 'package:encrypt/encrypt.dart' as en;
 import 'package:flutter/foundation.dart';
 import 'package:pwallet/constants.dart';
 
 class Encrypter {
+  static final _iv = e.IV.fromLength(16);
   static String generateSHA512(String text) {
     var hash = '';
     hash = sha512.convert(utf8.encode(text)).toString();
@@ -18,12 +19,19 @@ class Encrypter {
     return hash;
   }
 
-  static String decryptFromSHA512(String hash, String salt) {
-    final key = en.Key.fromUtf8(salt);
-    final encrypter = en.Encrypter(en.AES(key, mode: en.AESMode.cfb64));
+  static String encryptPassword(String password, String salt) {
+    final key = e.Key.fromUtf8(salt);
 
-    final text = encrypter.decrypt(en.Encrypted.from64(hash));
-    return text;
+    final encrypter = e.Encrypter(e.AES(key));
+    return encrypter.encrypt(password, iv: _iv).base64;
+  }
+
+  static String decryptPassword(String hash, String salt) {
+    final e.Encrypted encrypted = e.Encrypted.from64(hash);
+    final key = e.Key.fromUtf8(salt);
+
+    final encrypter = e.Encrypter(e.AES(key));
+    return encrypter.decrypt(encrypted, iv: _iv);
   }
 
   static String generateHMAC(String text, String key) {

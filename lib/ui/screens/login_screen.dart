@@ -5,16 +5,22 @@ import 'package:go_router/go_router.dart';
 import 'package:lottie/lottie.dart';
 import 'package:pwallet/bloc/user/user_cubit.dart';
 import 'package:pwallet/bloc/user/user_state.dart';
+import 'package:pwallet/constants.dart';
 import 'package:pwallet/ui/screens/pass_page.dart';
 
-class LoginScreen extends StatelessWidget {
+class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    final passwordController = TextEditingController();
-    final loginController = TextEditingController();
+  State<LoginScreen> createState() => _LoginScreenState();
+}
 
+class _LoginScreenState extends State<LoginScreen> {
+  final passwordController = TextEditingController();
+  final loginController = TextEditingController();
+
+  @override
+  Widget build(BuildContext context) {
     return BlocConsumer<UserCubit, UserState>(
       listener: (context, state) {
         if (state is UserLoggedIn) {
@@ -26,7 +32,9 @@ class LoginScreen extends StatelessWidget {
           body: SingleChildScrollView(
             child: Center(
               child: SizedBox(
-                width: MediaQuery.of(context).size.width * 0.3,
+                width: MediaQuery.of(context).size.width > minDekstopWidth
+                    ? MediaQuery.of(context).size.width * 0.3
+                    : MediaQuery.of(context).size.width,
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
@@ -34,6 +42,8 @@ class LoginScreen extends StatelessWidget {
                       'https://assets3.lottiefiles.com/packages/lf20_4eynavd0.json',
                       height: 400,
                       width: 400,
+                      frameRate: FrameRate.max,
+                      fit: BoxFit.fitHeight,
                     ),
                     Padding(
                       padding: const EdgeInsets.only(bottom: 50),
@@ -70,16 +80,6 @@ class LoginScreen extends StatelessWidget {
                       onPressed: () => GoRouter.of(context).go('/register'),
                       child: const Text('Create new account'),
                     ),
-                    TextButton(
-                        onPressed: () {
-                          Navigator.of(context).push(
-                            MaterialPageRoute(
-                              builder: (context) => DriftDbViewer(
-                                  BlocProvider.of<UserCubit>(context).database),
-                            ),
-                          );
-                        },
-                        child: Text('e')),
                     const SizedBox(
                       height: 100,
                     ),
@@ -96,6 +96,8 @@ class LoginScreen extends StatelessWidget {
                   password: passwordController.text,
                   login: loginController.text,
                 );
+                loginController.clear();
+                passwordController.clear();
               },
               style: ElevatedButton.styleFrom(
                 fixedSize: const Size(400, 40),
@@ -108,5 +110,12 @@ class LoginScreen extends StatelessWidget {
         );
       },
     );
+  }
+
+  @override
+  void dispose() {
+    loginController.dispose();
+    passwordController.dispose();
+    super.dispose();
   }
 }

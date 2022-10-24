@@ -89,8 +89,9 @@ class PasswordAddScreen extends StatelessWidget {
                           login: loginController.text,
                         );
                         GoRouter.of(context).pop();
+                        showGoodToast('Password added');
                       } else {
-                        showToast('All fields should be filled');
+                        showBadToast('All fields should be filled');
                       }
                     },
                     child: const Text('Add'),

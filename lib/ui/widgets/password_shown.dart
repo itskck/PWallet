@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:pwallet/bloc/user/user_cubit.dart';
 import 'package:pwallet/data/wallet_data.dart';
+import 'package:pwallet/utils/encrypter.dart';
+import 'package:pwallet/utils/utils.dart';
 
 class PasswordShown extends StatefulWidget {
   const PasswordShown({
@@ -16,13 +20,20 @@ class PasswordShown extends StatefulWidget {
 class _PasswordShownState extends State<PasswordShown> {
   late TextEditingController loginController;
   late TextEditingController passwordController;
-  bool isObscure = true;
+  late TextEditingController passwordDecodedController;
+  late bool showPassword;
+
+  @override
+  void initState() {
+    super.initState();
+    loginController = TextEditingController(text: widget.password.login);
+    passwordController = TextEditingController(text: widget.password.password);
+    passwordDecodedController = TextEditingController();
+    showPassword = false;
+  }
 
   @override
   Widget build(BuildContext context) {
-    loginController = TextEditingController(text: widget.password.login);
-    passwordController = TextEditingController(text: widget.password.password);
-
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(32),
@@ -43,6 +54,7 @@ class _PasswordShownState extends State<PasswordShown> {
             Padding(
               padding: const EdgeInsets.all(10),
               child: TextField(
+                readOnly: true,
                 controller: loginController,
                 decoration: const InputDecoration(
                   border: OutlineInputBorder(),
@@ -53,24 +65,41 @@ class _PasswordShownState extends State<PasswordShown> {
             Padding(
               padding: const EdgeInsets.all(10),
               child: TextField(
+                readOnly: true,
                 controller: passwordController,
-                obscureText: isObscure,
-                decoration: InputDecoration(
-                  border: const OutlineInputBorder(),
-                  labelText: 'Password',
-                  suffixIcon: IconButton(
-                    onPressed: () {
-                      setState(() {
-                        isObscure = !isObscure;
-                      });
-                    },
-                    icon: Icon(
-                      isObscure ? Icons.visibility_off : Icons.visibility,
-                    ),
-                  ),
+                decoration: const InputDecoration(
+                  border: OutlineInputBorder(),
+                  labelText: 'Encrypted password',
                 ),
               ),
             ),
+            SwitchListTile(
+              title: const Text('Decrpyt and show password'),
+              value: showPassword,
+              onChanged: (value) {
+                if (value) {
+                  passwordDecodedController.text = Encrypter.decryptPassword(
+                    widget.password.password,
+                    BlocProvider.of<UserCubit>(context).currentUser!.salt,
+                  );
+                }
+                setState(() {
+                  showPassword = value;
+                });
+              },
+            ),
+            if (showPassword)
+              Padding(
+                padding: const EdgeInsets.all(10),
+                child: TextField(
+                  readOnly: true,
+                  controller: passwordDecodedController,
+                  decoration: const InputDecoration(
+                    border: OutlineInputBorder(),
+                    labelText: 'Password',
+                  ),
+                ),
+              ),
           ],
         ),
       ),

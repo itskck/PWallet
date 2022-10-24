@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pwallet/bloc/user/user_cubit.dart';
 import 'package:pwallet/bloc/user/user_state.dart';
+import 'package:pwallet/constants.dart';
 import 'package:pwallet/utils/encrypter.dart';
 
 class RegisterScreen extends StatefulWidget {
@@ -24,7 +25,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final width = MediaQuery.of(context).size.width * 0.3;
+    final width = MediaQuery.of(context).size.width > minDekstopWidth
+        ? MediaQuery.of(context).size.width * 0.3
+        : MediaQuery.of(context).size.width;
 
     return BlocListener<UserCubit, UserState>(
       listener: (context, state) {

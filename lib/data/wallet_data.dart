@@ -49,6 +49,20 @@ class MyDatabase extends _$MyDatabase {
     return list.length;
   }
 
+  Future<int> updatePassword(
+    String passwordHash,
+    String salt,
+    int userId,
+  ) async {
+    return (update(users)..where((tbl) => tbl.id.equals(userId))).write(
+      UsersCompanion(passwordHash: Value(passwordHash), salt: Value(salt)),
+    );
+  }
+
+  Future<List<User>> getAllUsers() {
+    return (select(users)).get();
+  }
+
   Future<int> addPassword(PasswordsCompanion entry) {
     return into(passwords).insert(entry);
   }
@@ -57,10 +71,8 @@ class MyDatabase extends _$MyDatabase {
     return (select(passwords)..where((tbl) => tbl.idUser.equals(userId))).get();
   }
 
-  void removePassword(Password password) {
-    return delete(passwords).where((tbl) {
-      return tbl.webAddress.equals(password.webAddress);
-    });
+  Future<int> removeAllUserPasswords(int userId) {
+    return (delete(passwords)..where((tbl) => tbl.idUser.equals(userId))).go();
   }
 
   @override

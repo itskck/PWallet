@@ -3,5 +3,5 @@ import 'package:pwallet/core/app.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  runApp(App());
+  runApp(const App());
 }
