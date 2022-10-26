@@ -67,6 +67,18 @@ class MyDatabase extends _$MyDatabase {
     return into(passwords).insert(entry);
   }
 
+  Future<int> editPassword(int id, String password) {
+    return (update(passwords)..where((tbl) => tbl.id.equals(id))).write(
+      PasswordsCompanion(
+        password: Value(password),
+      ),
+    );
+  }
+
+  Future<int> removePassword(int id) {
+    return (delete(passwords)..where((tbl) => tbl.id.equals(id))).go();
+  }
+
   Future<List<Password>> getAllUserPasswords(int userId) {
     return (select(passwords)..where((tbl) => tbl.idUser.equals(userId))).get();
   }

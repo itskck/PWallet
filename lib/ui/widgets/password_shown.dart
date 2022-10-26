@@ -22,6 +22,7 @@ class _PasswordShownState extends State<PasswordShown> {
   late TextEditingController passwordController;
   late TextEditingController passwordDecodedController;
   late bool showPassword;
+  late bool editMode;
 
   @override
   void initState() {
@@ -30,6 +31,7 @@ class _PasswordShownState extends State<PasswordShown> {
     passwordController = TextEditingController(text: widget.password.password);
     passwordDecodedController = TextEditingController();
     showPassword = false;
+    editMode = false;
   }
 
   @override
@@ -85,6 +87,7 @@ class _PasswordShownState extends State<PasswordShown> {
                 }
                 setState(() {
                   showPassword = value;
+                  editMode = false;
                 });
               },
             ),
@@ -92,7 +95,7 @@ class _PasswordShownState extends State<PasswordShown> {
               Padding(
                 padding: const EdgeInsets.all(10),
                 child: TextField(
-                  readOnly: true,
+                  readOnly: !editMode,
                   controller: passwordDecodedController,
                   decoration: const InputDecoration(
                     border: OutlineInputBorder(),
@@ -100,6 +103,54 @@ class _PasswordShownState extends State<PasswordShown> {
                   ),
                 ),
               ),
+            const SizedBox(
+              height: 10,
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                IconButton(
+                  onPressed: () {
+                    if (!editMode) {
+                      if (!showPassword) {
+                        passwordDecodedController.text =
+                            Encrypter.decryptPassword(
+                          widget.password.password,
+                          BlocProvider.of<UserCubit>(context).currentUser!.salt,
+                        );
+                      }
+                      setState(() {
+                        editMode = true;
+                        showPassword = true;
+                      });
+                    } else {
+                      BlocProvider.of<UserCubit>(context).editPassword(
+                        widget.password.id,
+                        passwordDecodedController.text,
+                      );
+                      setState(() {
+                        editMode = false;
+                      });
+                    }
+                  },
+                  icon: Icon(
+                    editMode ? Icons.save : Icons.edit,
+                    color: const Color.fromARGB(255, 68, 68, 68),
+                  ),
+                ),
+                const SizedBox(
+                  width: 10,
+                ),
+                IconButton(
+                  onPressed: () => BlocProvider.of<UserCubit>(context)
+                      .removePassword(widget.password.id),
+                  icon: const Icon(
+                    Icons.delete,
+                    color: Color.fromARGB(255, 197, 92, 92),
+                  ),
+                )
+              ],
+            )
           ],
         ),
       ),

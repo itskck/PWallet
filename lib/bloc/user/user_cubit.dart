@@ -92,6 +92,53 @@ class UserCubit extends Cubit<UserState> {
     );
   }
 
+  Future<void> editPassword(int id, String password) async {
+    try {
+      final hash = Encrypter.encryptPassword(password, currentUser!.salt);
+      await database.editPassword(id, hash);
+      final passwords = await database.getAllUserPasswords(
+        currentUser!.id,
+      );
+      emit(
+        UserLoggedIn(
+          currentUser!,
+          passwords,
+          null,
+        ),
+      );
+    } catch (e, s) {
+      log(
+        'Error while editing password',
+        stackTrace: s,
+      );
+      showBadToast('Error while editing password');
+    }
+  }
+
+  Future<void> removePassword(int id) async {
+    try {
+      final user = currentUser!;
+
+      await database.removePassword(id);
+      final passwords = await database.getAllUserPasswords(
+        currentUser!.id,
+      );
+      emit(
+        UserLoggedIn(
+          user,
+          passwords,
+          null,
+        ),
+      );
+    } catch (e, s) {
+      log(
+        'Error while deleting password',
+        stackTrace: s,
+      );
+      showBadToast('Error while deleting password');
+    }
+  }
+
   Future<void> changePassword({
     required String oldPassword,
     required String newPassword,
@@ -115,7 +162,7 @@ class UserCubit extends Cubit<UserState> {
         }
 
         final passwords = await database.getAllUserPasswords(currentUser!.id);
-        database.removeAllUserPasswords(currentUser!.id);
+        await database.removeAllUserPasswords(currentUser!.id);
         await database.updatePassword(md, newSalt, currentUser!.id);
         List<Password> tempPasswords = [];
         List<String> decryptedPasswords = [];
