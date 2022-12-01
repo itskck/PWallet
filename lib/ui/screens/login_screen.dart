@@ -47,7 +47,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                     Padding(
                       padding: const EdgeInsets.only(bottom: 50),
-                      child: Text(
+                      child: SelectableText(
                         'Password wallet',
                         textAlign: TextAlign.center,
                         style: Theme.of(context).textTheme.headline2,

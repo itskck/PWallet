@@ -13,9 +13,6 @@ class Encrypter {
   static String generateSHA512(String text) {
     var hash = '';
     hash = sha512.convert(utf8.encode(text)).toString();
-    if (kDebugMode) {
-      print('Hashed text: $hash');
-    }
     return hash;
   }
 
@@ -40,7 +37,7 @@ class Encrypter {
     final hmac = Hmac(sha512, utf8.encode(key));
     final digest = hmac.convert(utf8.encode(text));
     hash = digest.toString();
-    print('hmac is $hash');
+
     return hash;
   }
 
