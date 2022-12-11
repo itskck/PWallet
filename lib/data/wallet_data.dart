@@ -25,6 +25,25 @@ class Users extends Table {
   BoolColumn get isPasswordKeptAsHash => boolean()();
 }
 
+@DataClassName('Login')
+class Logins extends Table {
+  TextColumn get username => text()();
+  TextColumn get ipAddress => text()();
+  BoolColumn get successful => boolean()();
+  DateTimeColumn get timestamp => dateTime()();
+}
+
+@DataClassName('IpAddress')
+class IpAddresses extends Table {
+  TextColumn get ipAddress => text()();
+  IntColumn get subsequentFail => integer().withDefault(const Constant(0))();
+  IntColumn get subsequentSuccess => integer().withDefault(const Constant(0))();
+  DateTimeColumn get lastSuccessfulLogin => dateTime().nullable()();
+  DateTimeColumn get lastUnsuccessfulLogin => dateTime().nullable()();
+  DateTimeColumn get blockedUntill => dateTime().nullable()();
+  BoolColumn get permBlocked => boolean().withDefault(const Constant(false))();
+}
+
 @DriftDatabase(tables: [Passwords, Users])
 class MyDatabase extends _$MyDatabase {
   MyDatabase() : super(WebDatabase('database'));
