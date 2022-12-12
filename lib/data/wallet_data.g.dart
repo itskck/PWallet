@@ -626,13 +626,665 @@ class $PasswordsTable extends Passwords
   }
 }
 
+class Login extends DataClass implements Insertable<Login> {
+  final String username;
+  final String ipAddress;
+  final bool successful;
+  final DateTime timestamp;
+  const Login(
+      {required this.username,
+      required this.ipAddress,
+      required this.successful,
+      required this.timestamp});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['username'] = Variable<String>(username);
+    map['ip_address'] = Variable<String>(ipAddress);
+    map['successful'] = Variable<bool>(successful);
+    map['timestamp'] = Variable<DateTime>(timestamp);
+    return map;
+  }
+
+  LoginsCompanion toCompanion(bool nullToAbsent) {
+    return LoginsCompanion(
+      username: Value(username),
+      ipAddress: Value(ipAddress),
+      successful: Value(successful),
+      timestamp: Value(timestamp),
+    );
+  }
+
+  factory Login.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return Login(
+      username: serializer.fromJson<String>(json['username']),
+      ipAddress: serializer.fromJson<String>(json['ipAddress']),
+      successful: serializer.fromJson<bool>(json['successful']),
+      timestamp: serializer.fromJson<DateTime>(json['timestamp']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'username': serializer.toJson<String>(username),
+      'ipAddress': serializer.toJson<String>(ipAddress),
+      'successful': serializer.toJson<bool>(successful),
+      'timestamp': serializer.toJson<DateTime>(timestamp),
+    };
+  }
+
+  Login copyWith(
+          {String? username,
+          String? ipAddress,
+          bool? successful,
+          DateTime? timestamp}) =>
+      Login(
+        username: username ?? this.username,
+        ipAddress: ipAddress ?? this.ipAddress,
+        successful: successful ?? this.successful,
+        timestamp: timestamp ?? this.timestamp,
+      );
+  @override
+  String toString() {
+    return (StringBuffer('Login(')
+          ..write('username: $username, ')
+          ..write('ipAddress: $ipAddress, ')
+          ..write('successful: $successful, ')
+          ..write('timestamp: $timestamp')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(username, ipAddress, successful, timestamp);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is Login &&
+          other.username == this.username &&
+          other.ipAddress == this.ipAddress &&
+          other.successful == this.successful &&
+          other.timestamp == this.timestamp);
+}
+
+class LoginsCompanion extends UpdateCompanion<Login> {
+  final Value<String> username;
+  final Value<String> ipAddress;
+  final Value<bool> successful;
+  final Value<DateTime> timestamp;
+  const LoginsCompanion({
+    this.username = const Value.absent(),
+    this.ipAddress = const Value.absent(),
+    this.successful = const Value.absent(),
+    this.timestamp = const Value.absent(),
+  });
+  LoginsCompanion.insert({
+    required String username,
+    required String ipAddress,
+    required bool successful,
+    required DateTime timestamp,
+  })  : username = Value(username),
+        ipAddress = Value(ipAddress),
+        successful = Value(successful),
+        timestamp = Value(timestamp);
+  static Insertable<Login> custom({
+    Expression<String>? username,
+    Expression<String>? ipAddress,
+    Expression<bool>? successful,
+    Expression<DateTime>? timestamp,
+  }) {
+    return RawValuesInsertable({
+      if (username != null) 'username': username,
+      if (ipAddress != null) 'ip_address': ipAddress,
+      if (successful != null) 'successful': successful,
+      if (timestamp != null) 'timestamp': timestamp,
+    });
+  }
+
+  LoginsCompanion copyWith(
+      {Value<String>? username,
+      Value<String>? ipAddress,
+      Value<bool>? successful,
+      Value<DateTime>? timestamp}) {
+    return LoginsCompanion(
+      username: username ?? this.username,
+      ipAddress: ipAddress ?? this.ipAddress,
+      successful: successful ?? this.successful,
+      timestamp: timestamp ?? this.timestamp,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (username.present) {
+      map['username'] = Variable<String>(username.value);
+    }
+    if (ipAddress.present) {
+      map['ip_address'] = Variable<String>(ipAddress.value);
+    }
+    if (successful.present) {
+      map['successful'] = Variable<bool>(successful.value);
+    }
+    if (timestamp.present) {
+      map['timestamp'] = Variable<DateTime>(timestamp.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('LoginsCompanion(')
+          ..write('username: $username, ')
+          ..write('ipAddress: $ipAddress, ')
+          ..write('successful: $successful, ')
+          ..write('timestamp: $timestamp')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $LoginsTable extends Logins with TableInfo<$LoginsTable, Login> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $LoginsTable(this.attachedDatabase, [this._alias]);
+  final VerificationMeta _usernameMeta = const VerificationMeta('username');
+  @override
+  late final GeneratedColumn<String> username = GeneratedColumn<String>(
+      'username', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  final VerificationMeta _ipAddressMeta = const VerificationMeta('ipAddress');
+  @override
+  late final GeneratedColumn<String> ipAddress = GeneratedColumn<String>(
+      'ip_address', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  final VerificationMeta _successfulMeta = const VerificationMeta('successful');
+  @override
+  late final GeneratedColumn<bool> successful = GeneratedColumn<bool>(
+      'successful', aliasedName, false,
+      type: DriftSqlType.bool,
+      requiredDuringInsert: true,
+      defaultConstraints: 'CHECK ("successful" IN (0, 1))');
+  final VerificationMeta _timestampMeta = const VerificationMeta('timestamp');
+  @override
+  late final GeneratedColumn<DateTime> timestamp = GeneratedColumn<DateTime>(
+      'timestamp', aliasedName, false,
+      type: DriftSqlType.dateTime, requiredDuringInsert: true);
+  @override
+  List<GeneratedColumn> get $columns =>
+      [username, ipAddress, successful, timestamp];
+  @override
+  String get aliasedName => _alias ?? 'logins';
+  @override
+  String get actualTableName => 'logins';
+  @override
+  VerificationContext validateIntegrity(Insertable<Login> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('username')) {
+      context.handle(_usernameMeta,
+          username.isAcceptableOrUnknown(data['username']!, _usernameMeta));
+    } else if (isInserting) {
+      context.missing(_usernameMeta);
+    }
+    if (data.containsKey('ip_address')) {
+      context.handle(_ipAddressMeta,
+          ipAddress.isAcceptableOrUnknown(data['ip_address']!, _ipAddressMeta));
+    } else if (isInserting) {
+      context.missing(_ipAddressMeta);
+    }
+    if (data.containsKey('successful')) {
+      context.handle(
+          _successfulMeta,
+          successful.isAcceptableOrUnknown(
+              data['successful']!, _successfulMeta));
+    } else if (isInserting) {
+      context.missing(_successfulMeta);
+    }
+    if (data.containsKey('timestamp')) {
+      context.handle(_timestampMeta,
+          timestamp.isAcceptableOrUnknown(data['timestamp']!, _timestampMeta));
+    } else if (isInserting) {
+      context.missing(_timestampMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => <GeneratedColumn>{};
+  @override
+  Login map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return Login(
+      username: attachedDatabase.options.types
+          .read(DriftSqlType.string, data['${effectivePrefix}username'])!,
+      ipAddress: attachedDatabase.options.types
+          .read(DriftSqlType.string, data['${effectivePrefix}ip_address'])!,
+      successful: attachedDatabase.options.types
+          .read(DriftSqlType.bool, data['${effectivePrefix}successful'])!,
+      timestamp: attachedDatabase.options.types
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}timestamp'])!,
+    );
+  }
+
+  @override
+  $LoginsTable createAlias(String alias) {
+    return $LoginsTable(attachedDatabase, alias);
+  }
+}
+
+class IpAddress extends DataClass implements Insertable<IpAddress> {
+  final String ipAddress;
+  final int subsequentFail;
+  final int subsequentSuccess;
+  final DateTime? lastSuccessfulLogin;
+  final DateTime? lastUnsuccessfulLogin;
+  final DateTime? blockedUntill;
+  final bool permBlocked;
+  const IpAddress(
+      {required this.ipAddress,
+      required this.subsequentFail,
+      required this.subsequentSuccess,
+      this.lastSuccessfulLogin,
+      this.lastUnsuccessfulLogin,
+      this.blockedUntill,
+      required this.permBlocked});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['ip_address'] = Variable<String>(ipAddress);
+    map['subsequent_fail'] = Variable<int>(subsequentFail);
+    map['subsequent_success'] = Variable<int>(subsequentSuccess);
+    if (!nullToAbsent || lastSuccessfulLogin != null) {
+      map['last_successful_login'] = Variable<DateTime>(lastSuccessfulLogin);
+    }
+    if (!nullToAbsent || lastUnsuccessfulLogin != null) {
+      map['last_unsuccessful_login'] =
+          Variable<DateTime>(lastUnsuccessfulLogin);
+    }
+    if (!nullToAbsent || blockedUntill != null) {
+      map['blocked_untill'] = Variable<DateTime>(blockedUntill);
+    }
+    map['perm_blocked'] = Variable<bool>(permBlocked);
+    return map;
+  }
+
+  IpAddressesCompanion toCompanion(bool nullToAbsent) {
+    return IpAddressesCompanion(
+      ipAddress: Value(ipAddress),
+      subsequentFail: Value(subsequentFail),
+      subsequentSuccess: Value(subsequentSuccess),
+      lastSuccessfulLogin: lastSuccessfulLogin == null && nullToAbsent
+          ? const Value.absent()
+          : Value(lastSuccessfulLogin),
+      lastUnsuccessfulLogin: lastUnsuccessfulLogin == null && nullToAbsent
+          ? const Value.absent()
+          : Value(lastUnsuccessfulLogin),
+      blockedUntill: blockedUntill == null && nullToAbsent
+          ? const Value.absent()
+          : Value(blockedUntill),
+      permBlocked: Value(permBlocked),
+    );
+  }
+
+  factory IpAddress.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return IpAddress(
+      ipAddress: serializer.fromJson<String>(json['ipAddress']),
+      subsequentFail: serializer.fromJson<int>(json['subsequentFail']),
+      subsequentSuccess: serializer.fromJson<int>(json['subsequentSuccess']),
+      lastSuccessfulLogin:
+          serializer.fromJson<DateTime?>(json['lastSuccessfulLogin']),
+      lastUnsuccessfulLogin:
+          serializer.fromJson<DateTime?>(json['lastUnsuccessfulLogin']),
+      blockedUntill: serializer.fromJson<DateTime?>(json['blockedUntill']),
+      permBlocked: serializer.fromJson<bool>(json['permBlocked']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'ipAddress': serializer.toJson<String>(ipAddress),
+      'subsequentFail': serializer.toJson<int>(subsequentFail),
+      'subsequentSuccess': serializer.toJson<int>(subsequentSuccess),
+      'lastSuccessfulLogin': serializer.toJson<DateTime?>(lastSuccessfulLogin),
+      'lastUnsuccessfulLogin':
+          serializer.toJson<DateTime?>(lastUnsuccessfulLogin),
+      'blockedUntill': serializer.toJson<DateTime?>(blockedUntill),
+      'permBlocked': serializer.toJson<bool>(permBlocked),
+    };
+  }
+
+  IpAddress copyWith(
+          {String? ipAddress,
+          int? subsequentFail,
+          int? subsequentSuccess,
+          Value<DateTime?> lastSuccessfulLogin = const Value.absent(),
+          Value<DateTime?> lastUnsuccessfulLogin = const Value.absent(),
+          Value<DateTime?> blockedUntill = const Value.absent(),
+          bool? permBlocked}) =>
+      IpAddress(
+        ipAddress: ipAddress ?? this.ipAddress,
+        subsequentFail: subsequentFail ?? this.subsequentFail,
+        subsequentSuccess: subsequentSuccess ?? this.subsequentSuccess,
+        lastSuccessfulLogin: lastSuccessfulLogin.present
+            ? lastSuccessfulLogin.value
+            : this.lastSuccessfulLogin,
+        lastUnsuccessfulLogin: lastUnsuccessfulLogin.present
+            ? lastUnsuccessfulLogin.value
+            : this.lastUnsuccessfulLogin,
+        blockedUntill:
+            blockedUntill.present ? blockedUntill.value : this.blockedUntill,
+        permBlocked: permBlocked ?? this.permBlocked,
+      );
+  @override
+  String toString() {
+    return (StringBuffer('IpAddress(')
+          ..write('ipAddress: $ipAddress, ')
+          ..write('subsequentFail: $subsequentFail, ')
+          ..write('subsequentSuccess: $subsequentSuccess, ')
+          ..write('lastSuccessfulLogin: $lastSuccessfulLogin, ')
+          ..write('lastUnsuccessfulLogin: $lastUnsuccessfulLogin, ')
+          ..write('blockedUntill: $blockedUntill, ')
+          ..write('permBlocked: $permBlocked')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(ipAddress, subsequentFail, subsequentSuccess,
+      lastSuccessfulLogin, lastUnsuccessfulLogin, blockedUntill, permBlocked);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is IpAddress &&
+          other.ipAddress == this.ipAddress &&
+          other.subsequentFail == this.subsequentFail &&
+          other.subsequentSuccess == this.subsequentSuccess &&
+          other.lastSuccessfulLogin == this.lastSuccessfulLogin &&
+          other.lastUnsuccessfulLogin == this.lastUnsuccessfulLogin &&
+          other.blockedUntill == this.blockedUntill &&
+          other.permBlocked == this.permBlocked);
+}
+
+class IpAddressesCompanion extends UpdateCompanion<IpAddress> {
+  final Value<String> ipAddress;
+  final Value<int> subsequentFail;
+  final Value<int> subsequentSuccess;
+  final Value<DateTime?> lastSuccessfulLogin;
+  final Value<DateTime?> lastUnsuccessfulLogin;
+  final Value<DateTime?> blockedUntill;
+  final Value<bool> permBlocked;
+  const IpAddressesCompanion({
+    this.ipAddress = const Value.absent(),
+    this.subsequentFail = const Value.absent(),
+    this.subsequentSuccess = const Value.absent(),
+    this.lastSuccessfulLogin = const Value.absent(),
+    this.lastUnsuccessfulLogin = const Value.absent(),
+    this.blockedUntill = const Value.absent(),
+    this.permBlocked = const Value.absent(),
+  });
+  IpAddressesCompanion.insert({
+    required String ipAddress,
+    this.subsequentFail = const Value.absent(),
+    this.subsequentSuccess = const Value.absent(),
+    this.lastSuccessfulLogin = const Value.absent(),
+    this.lastUnsuccessfulLogin = const Value.absent(),
+    this.blockedUntill = const Value.absent(),
+    this.permBlocked = const Value.absent(),
+  }) : ipAddress = Value(ipAddress);
+  static Insertable<IpAddress> custom({
+    Expression<String>? ipAddress,
+    Expression<int>? subsequentFail,
+    Expression<int>? subsequentSuccess,
+    Expression<DateTime>? lastSuccessfulLogin,
+    Expression<DateTime>? lastUnsuccessfulLogin,
+    Expression<DateTime>? blockedUntill,
+    Expression<bool>? permBlocked,
+  }) {
+    return RawValuesInsertable({
+      if (ipAddress != null) 'ip_address': ipAddress,
+      if (subsequentFail != null) 'subsequent_fail': subsequentFail,
+      if (subsequentSuccess != null) 'subsequent_success': subsequentSuccess,
+      if (lastSuccessfulLogin != null)
+        'last_successful_login': lastSuccessfulLogin,
+      if (lastUnsuccessfulLogin != null)
+        'last_unsuccessful_login': lastUnsuccessfulLogin,
+      if (blockedUntill != null) 'blocked_untill': blockedUntill,
+      if (permBlocked != null) 'perm_blocked': permBlocked,
+    });
+  }
+
+  IpAddressesCompanion copyWith(
+      {Value<String>? ipAddress,
+      Value<int>? subsequentFail,
+      Value<int>? subsequentSuccess,
+      Value<DateTime?>? lastSuccessfulLogin,
+      Value<DateTime?>? lastUnsuccessfulLogin,
+      Value<DateTime?>? blockedUntill,
+      Value<bool>? permBlocked}) {
+    return IpAddressesCompanion(
+      ipAddress: ipAddress ?? this.ipAddress,
+      subsequentFail: subsequentFail ?? this.subsequentFail,
+      subsequentSuccess: subsequentSuccess ?? this.subsequentSuccess,
+      lastSuccessfulLogin: lastSuccessfulLogin ?? this.lastSuccessfulLogin,
+      lastUnsuccessfulLogin:
+          lastUnsuccessfulLogin ?? this.lastUnsuccessfulLogin,
+      blockedUntill: blockedUntill ?? this.blockedUntill,
+      permBlocked: permBlocked ?? this.permBlocked,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (ipAddress.present) {
+      map['ip_address'] = Variable<String>(ipAddress.value);
+    }
+    if (subsequentFail.present) {
+      map['subsequent_fail'] = Variable<int>(subsequentFail.value);
+    }
+    if (subsequentSuccess.present) {
+      map['subsequent_success'] = Variable<int>(subsequentSuccess.value);
+    }
+    if (lastSuccessfulLogin.present) {
+      map['last_successful_login'] =
+          Variable<DateTime>(lastSuccessfulLogin.value);
+    }
+    if (lastUnsuccessfulLogin.present) {
+      map['last_unsuccessful_login'] =
+          Variable<DateTime>(lastUnsuccessfulLogin.value);
+    }
+    if (blockedUntill.present) {
+      map['blocked_untill'] = Variable<DateTime>(blockedUntill.value);
+    }
+    if (permBlocked.present) {
+      map['perm_blocked'] = Variable<bool>(permBlocked.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('IpAddressesCompanion(')
+          ..write('ipAddress: $ipAddress, ')
+          ..write('subsequentFail: $subsequentFail, ')
+          ..write('subsequentSuccess: $subsequentSuccess, ')
+          ..write('lastSuccessfulLogin: $lastSuccessfulLogin, ')
+          ..write('lastUnsuccessfulLogin: $lastUnsuccessfulLogin, ')
+          ..write('blockedUntill: $blockedUntill, ')
+          ..write('permBlocked: $permBlocked')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $IpAddressesTable extends IpAddresses
+    with TableInfo<$IpAddressesTable, IpAddress> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $IpAddressesTable(this.attachedDatabase, [this._alias]);
+  final VerificationMeta _ipAddressMeta = const VerificationMeta('ipAddress');
+  @override
+  late final GeneratedColumn<String> ipAddress = GeneratedColumn<String>(
+      'ip_address', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  final VerificationMeta _subsequentFailMeta =
+      const VerificationMeta('subsequentFail');
+  @override
+  late final GeneratedColumn<int> subsequentFail = GeneratedColumn<int>(
+      'subsequent_fail', aliasedName, false,
+      type: DriftSqlType.int,
+      requiredDuringInsert: false,
+      defaultValue: const Constant(0));
+  final VerificationMeta _subsequentSuccessMeta =
+      const VerificationMeta('subsequentSuccess');
+  @override
+  late final GeneratedColumn<int> subsequentSuccess = GeneratedColumn<int>(
+      'subsequent_success', aliasedName, false,
+      type: DriftSqlType.int,
+      requiredDuringInsert: false,
+      defaultValue: const Constant(0));
+  final VerificationMeta _lastSuccessfulLoginMeta =
+      const VerificationMeta('lastSuccessfulLogin');
+  @override
+  late final GeneratedColumn<DateTime> lastSuccessfulLogin =
+      GeneratedColumn<DateTime>('last_successful_login', aliasedName, true,
+          type: DriftSqlType.dateTime, requiredDuringInsert: false);
+  final VerificationMeta _lastUnsuccessfulLoginMeta =
+      const VerificationMeta('lastUnsuccessfulLogin');
+  @override
+  late final GeneratedColumn<DateTime> lastUnsuccessfulLogin =
+      GeneratedColumn<DateTime>('last_unsuccessful_login', aliasedName, true,
+          type: DriftSqlType.dateTime, requiredDuringInsert: false);
+  final VerificationMeta _blockedUntillMeta =
+      const VerificationMeta('blockedUntill');
+  @override
+  late final GeneratedColumn<DateTime> blockedUntill =
+      GeneratedColumn<DateTime>('blocked_untill', aliasedName, true,
+          type: DriftSqlType.dateTime, requiredDuringInsert: false);
+  final VerificationMeta _permBlockedMeta =
+      const VerificationMeta('permBlocked');
+  @override
+  late final GeneratedColumn<bool> permBlocked = GeneratedColumn<bool>(
+      'perm_blocked', aliasedName, false,
+      type: DriftSqlType.bool,
+      requiredDuringInsert: false,
+      defaultConstraints: 'CHECK ("perm_blocked" IN (0, 1))',
+      defaultValue: const Constant(false));
+  @override
+  List<GeneratedColumn> get $columns => [
+        ipAddress,
+        subsequentFail,
+        subsequentSuccess,
+        lastSuccessfulLogin,
+        lastUnsuccessfulLogin,
+        blockedUntill,
+        permBlocked
+      ];
+  @override
+  String get aliasedName => _alias ?? 'ip_addresses';
+  @override
+  String get actualTableName => 'ip_addresses';
+  @override
+  VerificationContext validateIntegrity(Insertable<IpAddress> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('ip_address')) {
+      context.handle(_ipAddressMeta,
+          ipAddress.isAcceptableOrUnknown(data['ip_address']!, _ipAddressMeta));
+    } else if (isInserting) {
+      context.missing(_ipAddressMeta);
+    }
+    if (data.containsKey('subsequent_fail')) {
+      context.handle(
+          _subsequentFailMeta,
+          subsequentFail.isAcceptableOrUnknown(
+              data['subsequent_fail']!, _subsequentFailMeta));
+    }
+    if (data.containsKey('subsequent_success')) {
+      context.handle(
+          _subsequentSuccessMeta,
+          subsequentSuccess.isAcceptableOrUnknown(
+              data['subsequent_success']!, _subsequentSuccessMeta));
+    }
+    if (data.containsKey('last_successful_login')) {
+      context.handle(
+          _lastSuccessfulLoginMeta,
+          lastSuccessfulLogin.isAcceptableOrUnknown(
+              data['last_successful_login']!, _lastSuccessfulLoginMeta));
+    }
+    if (data.containsKey('last_unsuccessful_login')) {
+      context.handle(
+          _lastUnsuccessfulLoginMeta,
+          lastUnsuccessfulLogin.isAcceptableOrUnknown(
+              data['last_unsuccessful_login']!, _lastUnsuccessfulLoginMeta));
+    }
+    if (data.containsKey('blocked_untill')) {
+      context.handle(
+          _blockedUntillMeta,
+          blockedUntill.isAcceptableOrUnknown(
+              data['blocked_untill']!, _blockedUntillMeta));
+    }
+    if (data.containsKey('perm_blocked')) {
+      context.handle(
+          _permBlockedMeta,
+          permBlocked.isAcceptableOrUnknown(
+              data['perm_blocked']!, _permBlockedMeta));
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => <GeneratedColumn>{};
+  @override
+  IpAddress map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return IpAddress(
+      ipAddress: attachedDatabase.options.types
+          .read(DriftSqlType.string, data['${effectivePrefix}ip_address'])!,
+      subsequentFail: attachedDatabase.options.types
+          .read(DriftSqlType.int, data['${effectivePrefix}subsequent_fail'])!,
+      subsequentSuccess: attachedDatabase.options.types.read(
+          DriftSqlType.int, data['${effectivePrefix}subsequent_success'])!,
+      lastSuccessfulLogin: attachedDatabase.options.types.read(
+          DriftSqlType.dateTime,
+          data['${effectivePrefix}last_successful_login']),
+      lastUnsuccessfulLogin: attachedDatabase.options.types.read(
+          DriftSqlType.dateTime,
+          data['${effectivePrefix}last_unsuccessful_login']),
+      blockedUntill: attachedDatabase.options.types.read(
+          DriftSqlType.dateTime, data['${effectivePrefix}blocked_untill']),
+      permBlocked: attachedDatabase.options.types
+          .read(DriftSqlType.bool, data['${effectivePrefix}perm_blocked'])!,
+    );
+  }
+
+  @override
+  $IpAddressesTable createAlias(String alias) {
+    return $IpAddressesTable(attachedDatabase, alias);
+  }
+}
+
 abstract class _$MyDatabase extends GeneratedDatabase {
   _$MyDatabase(QueryExecutor e) : super(e);
   late final $UsersTable users = $UsersTable(this);
   late final $PasswordsTable passwords = $PasswordsTable(this);
+  late final $LoginsTable logins = $LoginsTable(this);
+  late final $IpAddressesTable ipAddresses = $IpAddressesTable(this);
   @override
   Iterable<TableInfo<Table, dynamic>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
   @override
-  List<DatabaseSchemaEntity> get allSchemaEntities => [users, passwords];
+  List<DatabaseSchemaEntity> get allSchemaEntities =>
+      [users, passwords, logins, ipAddresses];
 }

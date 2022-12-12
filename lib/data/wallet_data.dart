@@ -44,7 +44,7 @@ class IpAddresses extends Table {
   BoolColumn get permBlocked => boolean().withDefault(const Constant(false))();
 }
 
-@DriftDatabase(tables: [Passwords, Users])
+@DriftDatabase(tables: [Passwords, Users, Logins, IpAddresses])
 class MyDatabase extends _$MyDatabase {
   MyDatabase() : super(WebDatabase('database'));
 
@@ -84,6 +84,10 @@ class MyDatabase extends _$MyDatabase {
 
   Future<int> addPassword(PasswordsCompanion entry) {
     return into(passwords).insert(entry);
+  }
+
+  Future<int> addIp(IpAddressesCompanion entry) {
+    return into(ipAddresses).insert(entry);
   }
 
   Future<int> editPassword(int id, String password) {

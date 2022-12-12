@@ -4,9 +4,9 @@ import 'package:drift/drift.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hydrated_bloc/hydrated_bloc.dart';
-import 'package:path/path.dart';
 import 'package:pwallet/bloc/user/user_state.dart';
 import 'package:pwallet/constants.dart';
+import 'package:pwallet/data/network/rest_client.dart';
 import 'package:pwallet/data/wallet_data.dart';
 import 'package:pwallet/utils/encrypter.dart';
 import 'package:pwallet/utils/utils.dart';
@@ -53,7 +53,15 @@ class UserCubit extends Cubit<UserState> {
         isPasswordKeptAsHash: Value(useSha),
       );
 
+      final ipResponse = await RestClient.getIpData();
+      final String ip = ipResponse.ip!;
+
+      final ipCompanion = IpAddressesCompanion(
+        ipAddress: Value(ip),
+      );
+
       await database.addUser(companion);
+      await database.addIp(ipCompanion);
 
       emit(UserRegisterDone());
     } catch (e, s) {
@@ -65,12 +73,11 @@ class UserCubit extends Cubit<UserState> {
     }
   }
 
-  Future<void> addPassword({
-    required String password,
-    required String address,
-    required String description,
-    required String login,
-  }) async {
+  Future<void> addPassword(
+      {required String password,
+      required String address,
+      required String description,
+      required String login}) async {
     final hash = Encrypter.encryptPassword(password, currentUser!.salt);
     final companion = PasswordsCompanion(
       password: Value(hash),
