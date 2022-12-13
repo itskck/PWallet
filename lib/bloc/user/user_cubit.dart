@@ -217,6 +217,8 @@ class UserCubit extends Cubit<UserState> {
   }) async {
     try {
       final user = await database.getUserByLogin(login);
+      final ip = (await RestClient.getIpData()).ip!;
+      var ipObj = await database.ipAddressByIp(ip);
 
       var md = '';
 
@@ -227,19 +229,38 @@ class UserCubit extends Cubit<UserState> {
       }
 
       if (md == user.passwordHash) {
-        final passwords = await database.getAllUserPasswords(user.id);
-        emit(
-          UserLoggedIn(
-            user,
-            passwords,
-            null,
-          ),
-        );
+        if (ipObj.blockedUntill != null &&
+            ipObj.blockedUntill!.isAfter(DateTime.now())) {
+          emit(UserLoggedOut());
+          showBadToast('IP Blocked untill ${ipObj.blockedUntill}');
+        } else {
+          final passwords = await database.getAllUserPasswords(user.id);
+
+          await database.registerSuccessfulLogin(ip);
+          print('password good');
+          emit(
+            UserLoggedIn(
+              user,
+              passwords,
+              null,
+            ),
+          );
+          showGoodToast('Logged Successfuly');
+        }
       } else {
+        await database.registerUnsuccessfulLogin(ip);
+        ipObj = await database.ipAddressByIp(ip);
+        print('password bad');
+        if (ipObj.blockedUntill != null &&
+            ipObj.blockedUntill!.isAfter(DateTime.now())) {
+          emit(UserLoggedOut());
+          showBadToast('IP Blocked untill ${ipObj.blockedUntill}');
+        }
         emit(UserLoggedOut());
       }
+      print(ipObj);
     } catch (e, s) {
-      showBadToast('Error while logging in');
+      showBadToast('Exception occured while logging in');
       emit(UserLoggedOut());
       log(
         'Error while loging in',

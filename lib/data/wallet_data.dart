@@ -78,6 +78,53 @@ class MyDatabase extends _$MyDatabase {
     );
   }
 
+  Future<int> registerUnsuccessfulLogin(String ip) async {
+    final ipAddress = await ipAddressByIp(ip);
+
+    late DateTime? blockedUntill = DateTime.now();
+
+    if (ipAddress.subsequentFail + 1 == 2) {
+      blockedUntill = blockedUntill.add(const Duration(seconds: 5));
+    } else if (ipAddress.subsequentFail + 1 == 3) {
+      blockedUntill = blockedUntill.add(const Duration(seconds: 10));
+    } else if (ipAddress.subsequentFail + 1 == 4) {
+      blockedUntill = blockedUntill.add(const Duration(minutes: 1));
+    } else if (ipAddress.subsequentFail + 1 > 4) {
+      blockedUntill = blockedUntill.add(const Duration(days: 999));
+    } else {
+      blockedUntill = null;
+    }
+
+    print("$blockedUntill -> blocked untill");
+
+    return (update(ipAddresses)..where((tbl) => tbl.ipAddress.equals(ip)))
+        .write(
+      IpAddressesCompanion(
+        subsequentFail: Value(ipAddress.subsequentFail + 1),
+        subsequentSuccess: const Value(0),
+        lastUnsuccessfulLogin: Value(DateTime.now()),
+        blockedUntill: Value(blockedUntill),
+      ),
+    );
+  }
+
+  Future<int> registerSuccessfulLogin(String ip) async {
+    final ipAddress = await ipAddressByIp(ip);
+
+    return (update(ipAddresses)..where((tbl) => tbl.ipAddress.equals(ip)))
+        .write(
+      IpAddressesCompanion(
+        subsequentFail: const Value(0),
+        subsequentSuccess: Value(ipAddress.subsequentSuccess + 1),
+        lastSuccessfulLogin: Value(DateTime.now()),
+      ),
+    );
+  }
+
+  Future<IpAddress> ipAddressByIp(String ip) =>
+      (select(ipAddresses)..where((tbl) => tbl.ipAddress.equals(ip)))
+          .getSingle();
+
   Future<List<User>> getAllUsers() {
     return (select(users)).get();
   }

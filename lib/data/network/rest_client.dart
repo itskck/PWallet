@@ -10,7 +10,7 @@ class RestClient {
       );
       final IpData ipData = IpData.fromJson(response.data!);
       return ipData;
-    } on Exception catch (e) {
+    } on Exception catch (_) {
       return errorIpData;
     }
   }
