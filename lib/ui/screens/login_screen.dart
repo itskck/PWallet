@@ -90,19 +90,36 @@ class _LoginScreenState extends State<LoginScreen> {
           ),
           floatingActionButton: Padding(
             padding: const EdgeInsets.only(bottom: 20),
-            child: ElevatedButton(
-              onPressed: () {
-                BlocProvider.of<UserCubit>(context).loginUser(
-                  password: passwordController.text,
-                  login: loginController.text,
-                );
-                loginController.clear();
-                passwordController.clear();
-              },
-              style: ElevatedButton.styleFrom(
-                fixedSize: const Size(400, 40),
-              ),
-              child: const Text('Login'),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                ElevatedButton(
+                  onPressed: () {
+                    BlocProvider.of<UserCubit>(context).loginUser(
+                      password: passwordController.text,
+                      login: loginController.text,
+                    );
+                    loginController.clear();
+                    passwordController.clear();
+                  },
+                  style: ElevatedButton.styleFrom(
+                    fixedSize: const Size(400, 40),
+                  ),
+                  child: const Text('Login'),
+                ),
+                const SizedBox(
+                  height: 20,
+                ),
+                ElevatedButton(
+                  onPressed: () {
+                    BlocProvider.of<UserCubit>(context).resetIpAddress();
+                  },
+                  style: ElevatedButton.styleFrom(
+                    fixedSize: const Size(400, 40),
+                  ),
+                  child: const Text('Reset my IP address'),
+                ),
+              ],
             ),
           ),
           floatingActionButtonLocation:

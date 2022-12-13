@@ -10,9 +10,11 @@ class Options extends StatelessWidget {
   const Options({
     super.key,
     required this.passwords,
+    required this.user,
   });
 
   final List<Password> passwords;
+  final User user;
 
   @override
   Widget build(BuildContext context) {
@@ -23,6 +25,13 @@ class Options extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          Text(
+            'Last successful login: ${user.lastSuccessfulLogin} ${user.successfulLoginDetails}',
+          ),
+          Text(
+            'Last unsuccessful login: ${user.lastUnsuccessfulLogin} ${user.unsuccessfulLoginDetails}',
+          ),
+          const Divider(),
           const Text('Passwords'),
           const Divider(),
           if (passwords.isNotEmpty)

@@ -36,7 +36,10 @@ class PassPage extends StatelessWidget {
                 children: [
                   SizedBox(
                     width: width * 0.2,
-                    child: Options(passwords: state.passwords),
+                    child: Options(
+                      passwords: state.passwords,
+                      user: state.user,
+                    ),
                   ),
                   const VerticalDivider(),
                   SizedBox(

@@ -2,6 +2,7 @@ import 'package:drift/drift.dart';
 import 'package:drift/wasm.dart';
 import 'package:drift/web.dart';
 import 'package:http/http.dart' as http;
+import 'package:pwallet/utils/utils.dart';
 import 'package:sqlite3/wasm.dart';
 
 part 'wallet_data.g.dart';
@@ -23,6 +24,12 @@ class Users extends Table {
   TextColumn get passwordHash => text()();
   TextColumn get salt => text()();
   BoolColumn get isPasswordKeptAsHash => boolean()();
+  TextColumn get unsuccessfulLoginDetails =>
+      text().withDefault(const Constant(''))();
+  TextColumn get successfulLoginDetails =>
+      text().withDefault(const Constant(''))();
+  DateTimeColumn get lastSuccessfulLogin => dateTime().nullable()();
+  DateTimeColumn get lastUnsuccessfulLogin => dateTime().nullable()();
 }
 
 @DataClassName('Login')
@@ -78,24 +85,33 @@ class MyDatabase extends _$MyDatabase {
     );
   }
 
-  Future<int> registerUnsuccessfulLogin(String ip) async {
+  Future<int> registerUnsuccessfulLogin(
+      String ip, String details, int id) async {
     final ipAddress = await ipAddressByIp(ip);
 
     late DateTime? blockedUntill = DateTime.now();
 
     if (ipAddress.subsequentFail + 1 == 2) {
       blockedUntill = blockedUntill.add(const Duration(seconds: 5));
+      showBadToast('Wrong login or password. Account blocked for 5 seconds.');
     } else if (ipAddress.subsequentFail + 1 == 3) {
       blockedUntill = blockedUntill.add(const Duration(seconds: 10));
+      showBadToast('Wrong login or password. Account blocked for 10 seconds.');
     } else if (ipAddress.subsequentFail + 1 == 4) {
       blockedUntill = blockedUntill.add(const Duration(minutes: 1));
+      showBadToast('Wrong login or password. Account blocked for 1 minute.');
     } else if (ipAddress.subsequentFail + 1 > 4) {
       blockedUntill = blockedUntill.add(const Duration(days: 999));
+      showBadToast('Wrong login or password. Account blocked for 999 days.');
     } else {
       blockedUntill = null;
     }
-
-    print("$blockedUntill -> blocked untill");
+    await (update(users)..where((tbl) => tbl.id.equals(id))).write(
+      UsersCompanion(
+        unsuccessfulLoginDetails: Value(details),
+        lastUnsuccessfulLogin: Value(DateTime.now()),
+      ),
+    );
 
     return (update(ipAddresses)..where((tbl) => tbl.ipAddress.equals(ip)))
         .write(
@@ -108,8 +124,15 @@ class MyDatabase extends _$MyDatabase {
     );
   }
 
-  Future<int> registerSuccessfulLogin(String ip) async {
+  Future<int> registerSuccessfulLogin(String ip, int id, String details) async {
     final ipAddress = await ipAddressByIp(ip);
+
+    await (update(users)..where((tbl) => tbl.id.equals(id))).write(
+      UsersCompanion(
+        successfulLoginDetails: Value(details),
+        lastSuccessfulLogin: Value(DateTime.now()),
+      ),
+    );
 
     return (update(ipAddresses)..where((tbl) => tbl.ipAddress.equals(ip)))
         .write(
@@ -117,6 +140,17 @@ class MyDatabase extends _$MyDatabase {
         subsequentFail: const Value(0),
         subsequentSuccess: Value(ipAddress.subsequentSuccess + 1),
         lastSuccessfulLogin: Value(DateTime.now()),
+      ),
+    );
+  }
+
+  Future<int> resetIpAddress(String ip) async {
+    return (update(ipAddresses)..where((tbl) => tbl.ipAddress.equals(ip)))
+        .write(
+      const IpAddressesCompanion(
+        subsequentFail: Value(0),
+        subsequentSuccess: Value(0),
+        blockedUntill: Value(null),
       ),
     );
   }

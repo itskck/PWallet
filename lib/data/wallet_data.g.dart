@@ -13,12 +13,20 @@ class User extends DataClass implements Insertable<User> {
   final String passwordHash;
   final String salt;
   final bool isPasswordKeptAsHash;
+  final String unsuccessfulLoginDetails;
+  final String successfulLoginDetails;
+  final DateTime? lastSuccessfulLogin;
+  final DateTime? lastUnsuccessfulLogin;
   const User(
       {required this.id,
       required this.login,
       required this.passwordHash,
       required this.salt,
-      required this.isPasswordKeptAsHash});
+      required this.isPasswordKeptAsHash,
+      required this.unsuccessfulLoginDetails,
+      required this.successfulLoginDetails,
+      this.lastSuccessfulLogin,
+      this.lastUnsuccessfulLogin});
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
@@ -27,6 +35,16 @@ class User extends DataClass implements Insertable<User> {
     map['password_hash'] = Variable<String>(passwordHash);
     map['salt'] = Variable<String>(salt);
     map['is_password_kept_as_hash'] = Variable<bool>(isPasswordKeptAsHash);
+    map['unsuccessful_login_details'] =
+        Variable<String>(unsuccessfulLoginDetails);
+    map['successful_login_details'] = Variable<String>(successfulLoginDetails);
+    if (!nullToAbsent || lastSuccessfulLogin != null) {
+      map['last_successful_login'] = Variable<DateTime>(lastSuccessfulLogin);
+    }
+    if (!nullToAbsent || lastUnsuccessfulLogin != null) {
+      map['last_unsuccessful_login'] =
+          Variable<DateTime>(lastUnsuccessfulLogin);
+    }
     return map;
   }
 
@@ -37,6 +55,14 @@ class User extends DataClass implements Insertable<User> {
       passwordHash: Value(passwordHash),
       salt: Value(salt),
       isPasswordKeptAsHash: Value(isPasswordKeptAsHash),
+      unsuccessfulLoginDetails: Value(unsuccessfulLoginDetails),
+      successfulLoginDetails: Value(successfulLoginDetails),
+      lastSuccessfulLogin: lastSuccessfulLogin == null && nullToAbsent
+          ? const Value.absent()
+          : Value(lastSuccessfulLogin),
+      lastUnsuccessfulLogin: lastUnsuccessfulLogin == null && nullToAbsent
+          ? const Value.absent()
+          : Value(lastUnsuccessfulLogin),
     );
   }
 
@@ -50,6 +76,14 @@ class User extends DataClass implements Insertable<User> {
       salt: serializer.fromJson<String>(json['salt']),
       isPasswordKeptAsHash:
           serializer.fromJson<bool>(json['isPasswordKeptAsHash']),
+      unsuccessfulLoginDetails:
+          serializer.fromJson<String>(json['unsuccessfulLoginDetails']),
+      successfulLoginDetails:
+          serializer.fromJson<String>(json['successfulLoginDetails']),
+      lastSuccessfulLogin:
+          serializer.fromJson<DateTime?>(json['lastSuccessfulLogin']),
+      lastUnsuccessfulLogin:
+          serializer.fromJson<DateTime?>(json['lastUnsuccessfulLogin']),
     );
   }
   @override
@@ -61,6 +95,13 @@ class User extends DataClass implements Insertable<User> {
       'passwordHash': serializer.toJson<String>(passwordHash),
       'salt': serializer.toJson<String>(salt),
       'isPasswordKeptAsHash': serializer.toJson<bool>(isPasswordKeptAsHash),
+      'unsuccessfulLoginDetails':
+          serializer.toJson<String>(unsuccessfulLoginDetails),
+      'successfulLoginDetails':
+          serializer.toJson<String>(successfulLoginDetails),
+      'lastSuccessfulLogin': serializer.toJson<DateTime?>(lastSuccessfulLogin),
+      'lastUnsuccessfulLogin':
+          serializer.toJson<DateTime?>(lastUnsuccessfulLogin),
     };
   }
 
@@ -69,13 +110,27 @@ class User extends DataClass implements Insertable<User> {
           String? login,
           String? passwordHash,
           String? salt,
-          bool? isPasswordKeptAsHash}) =>
+          bool? isPasswordKeptAsHash,
+          String? unsuccessfulLoginDetails,
+          String? successfulLoginDetails,
+          Value<DateTime?> lastSuccessfulLogin = const Value.absent(),
+          Value<DateTime?> lastUnsuccessfulLogin = const Value.absent()}) =>
       User(
         id: id ?? this.id,
         login: login ?? this.login,
         passwordHash: passwordHash ?? this.passwordHash,
         salt: salt ?? this.salt,
         isPasswordKeptAsHash: isPasswordKeptAsHash ?? this.isPasswordKeptAsHash,
+        unsuccessfulLoginDetails:
+            unsuccessfulLoginDetails ?? this.unsuccessfulLoginDetails,
+        successfulLoginDetails:
+            successfulLoginDetails ?? this.successfulLoginDetails,
+        lastSuccessfulLogin: lastSuccessfulLogin.present
+            ? lastSuccessfulLogin.value
+            : this.lastSuccessfulLogin,
+        lastUnsuccessfulLogin: lastUnsuccessfulLogin.present
+            ? lastUnsuccessfulLogin.value
+            : this.lastUnsuccessfulLogin,
       );
   @override
   String toString() {
@@ -84,14 +139,26 @@ class User extends DataClass implements Insertable<User> {
           ..write('login: $login, ')
           ..write('passwordHash: $passwordHash, ')
           ..write('salt: $salt, ')
-          ..write('isPasswordKeptAsHash: $isPasswordKeptAsHash')
+          ..write('isPasswordKeptAsHash: $isPasswordKeptAsHash, ')
+          ..write('unsuccessfulLoginDetails: $unsuccessfulLoginDetails, ')
+          ..write('successfulLoginDetails: $successfulLoginDetails, ')
+          ..write('lastSuccessfulLogin: $lastSuccessfulLogin, ')
+          ..write('lastUnsuccessfulLogin: $lastUnsuccessfulLogin')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode =>
-      Object.hash(id, login, passwordHash, salt, isPasswordKeptAsHash);
+  int get hashCode => Object.hash(
+      id,
+      login,
+      passwordHash,
+      salt,
+      isPasswordKeptAsHash,
+      unsuccessfulLoginDetails,
+      successfulLoginDetails,
+      lastSuccessfulLogin,
+      lastUnsuccessfulLogin);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -100,7 +167,11 @@ class User extends DataClass implements Insertable<User> {
           other.login == this.login &&
           other.passwordHash == this.passwordHash &&
           other.salt == this.salt &&
-          other.isPasswordKeptAsHash == this.isPasswordKeptAsHash);
+          other.isPasswordKeptAsHash == this.isPasswordKeptAsHash &&
+          other.unsuccessfulLoginDetails == this.unsuccessfulLoginDetails &&
+          other.successfulLoginDetails == this.successfulLoginDetails &&
+          other.lastSuccessfulLogin == this.lastSuccessfulLogin &&
+          other.lastUnsuccessfulLogin == this.lastUnsuccessfulLogin);
 }
 
 class UsersCompanion extends UpdateCompanion<User> {
@@ -109,12 +180,20 @@ class UsersCompanion extends UpdateCompanion<User> {
   final Value<String> passwordHash;
   final Value<String> salt;
   final Value<bool> isPasswordKeptAsHash;
+  final Value<String> unsuccessfulLoginDetails;
+  final Value<String> successfulLoginDetails;
+  final Value<DateTime?> lastSuccessfulLogin;
+  final Value<DateTime?> lastUnsuccessfulLogin;
   const UsersCompanion({
     this.id = const Value.absent(),
     this.login = const Value.absent(),
     this.passwordHash = const Value.absent(),
     this.salt = const Value.absent(),
     this.isPasswordKeptAsHash = const Value.absent(),
+    this.unsuccessfulLoginDetails = const Value.absent(),
+    this.successfulLoginDetails = const Value.absent(),
+    this.lastSuccessfulLogin = const Value.absent(),
+    this.lastUnsuccessfulLogin = const Value.absent(),
   });
   UsersCompanion.insert({
     this.id = const Value.absent(),
@@ -122,6 +201,10 @@ class UsersCompanion extends UpdateCompanion<User> {
     required String passwordHash,
     required String salt,
     required bool isPasswordKeptAsHash,
+    this.unsuccessfulLoginDetails = const Value.absent(),
+    this.successfulLoginDetails = const Value.absent(),
+    this.lastSuccessfulLogin = const Value.absent(),
+    this.lastUnsuccessfulLogin = const Value.absent(),
   })  : login = Value(login),
         passwordHash = Value(passwordHash),
         salt = Value(salt),
@@ -132,6 +215,10 @@ class UsersCompanion extends UpdateCompanion<User> {
     Expression<String>? passwordHash,
     Expression<String>? salt,
     Expression<bool>? isPasswordKeptAsHash,
+    Expression<String>? unsuccessfulLoginDetails,
+    Expression<String>? successfulLoginDetails,
+    Expression<DateTime>? lastSuccessfulLogin,
+    Expression<DateTime>? lastUnsuccessfulLogin,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
@@ -140,6 +227,14 @@ class UsersCompanion extends UpdateCompanion<User> {
       if (salt != null) 'salt': salt,
       if (isPasswordKeptAsHash != null)
         'is_password_kept_as_hash': isPasswordKeptAsHash,
+      if (unsuccessfulLoginDetails != null)
+        'unsuccessful_login_details': unsuccessfulLoginDetails,
+      if (successfulLoginDetails != null)
+        'successful_login_details': successfulLoginDetails,
+      if (lastSuccessfulLogin != null)
+        'last_successful_login': lastSuccessfulLogin,
+      if (lastUnsuccessfulLogin != null)
+        'last_unsuccessful_login': lastUnsuccessfulLogin,
     });
   }
 
@@ -148,13 +243,24 @@ class UsersCompanion extends UpdateCompanion<User> {
       Value<String>? login,
       Value<String>? passwordHash,
       Value<String>? salt,
-      Value<bool>? isPasswordKeptAsHash}) {
+      Value<bool>? isPasswordKeptAsHash,
+      Value<String>? unsuccessfulLoginDetails,
+      Value<String>? successfulLoginDetails,
+      Value<DateTime?>? lastSuccessfulLogin,
+      Value<DateTime?>? lastUnsuccessfulLogin}) {
     return UsersCompanion(
       id: id ?? this.id,
       login: login ?? this.login,
       passwordHash: passwordHash ?? this.passwordHash,
       salt: salt ?? this.salt,
       isPasswordKeptAsHash: isPasswordKeptAsHash ?? this.isPasswordKeptAsHash,
+      unsuccessfulLoginDetails:
+          unsuccessfulLoginDetails ?? this.unsuccessfulLoginDetails,
+      successfulLoginDetails:
+          successfulLoginDetails ?? this.successfulLoginDetails,
+      lastSuccessfulLogin: lastSuccessfulLogin ?? this.lastSuccessfulLogin,
+      lastUnsuccessfulLogin:
+          lastUnsuccessfulLogin ?? this.lastUnsuccessfulLogin,
     );
   }
 
@@ -177,6 +283,22 @@ class UsersCompanion extends UpdateCompanion<User> {
       map['is_password_kept_as_hash'] =
           Variable<bool>(isPasswordKeptAsHash.value);
     }
+    if (unsuccessfulLoginDetails.present) {
+      map['unsuccessful_login_details'] =
+          Variable<String>(unsuccessfulLoginDetails.value);
+    }
+    if (successfulLoginDetails.present) {
+      map['successful_login_details'] =
+          Variable<String>(successfulLoginDetails.value);
+    }
+    if (lastSuccessfulLogin.present) {
+      map['last_successful_login'] =
+          Variable<DateTime>(lastSuccessfulLogin.value);
+    }
+    if (lastUnsuccessfulLogin.present) {
+      map['last_unsuccessful_login'] =
+          Variable<DateTime>(lastUnsuccessfulLogin.value);
+    }
     return map;
   }
 
@@ -187,7 +309,11 @@ class UsersCompanion extends UpdateCompanion<User> {
           ..write('login: $login, ')
           ..write('passwordHash: $passwordHash, ')
           ..write('salt: $salt, ')
-          ..write('isPasswordKeptAsHash: $isPasswordKeptAsHash')
+          ..write('isPasswordKeptAsHash: $isPasswordKeptAsHash, ')
+          ..write('unsuccessfulLoginDetails: $unsuccessfulLoginDetails, ')
+          ..write('successfulLoginDetails: $successfulLoginDetails, ')
+          ..write('lastSuccessfulLogin: $lastSuccessfulLogin, ')
+          ..write('lastUnsuccessfulLogin: $lastUnsuccessfulLogin')
           ..write(')'))
         .toString();
   }
@@ -229,9 +355,46 @@ class $UsersTable extends Users with TableInfo<$UsersTable, User> {
       type: DriftSqlType.bool,
       requiredDuringInsert: true,
       defaultConstraints: 'CHECK ("is_password_kept_as_hash" IN (0, 1))');
+  final VerificationMeta _unsuccessfulLoginDetailsMeta =
+      const VerificationMeta('unsuccessfulLoginDetails');
   @override
-  List<GeneratedColumn> get $columns =>
-      [id, login, passwordHash, salt, isPasswordKeptAsHash];
+  late final GeneratedColumn<String> unsuccessfulLoginDetails =
+      GeneratedColumn<String>('unsuccessful_login_details', aliasedName, false,
+          type: DriftSqlType.string,
+          requiredDuringInsert: false,
+          defaultValue: const Constant(''));
+  final VerificationMeta _successfulLoginDetailsMeta =
+      const VerificationMeta('successfulLoginDetails');
+  @override
+  late final GeneratedColumn<String> successfulLoginDetails =
+      GeneratedColumn<String>('successful_login_details', aliasedName, false,
+          type: DriftSqlType.string,
+          requiredDuringInsert: false,
+          defaultValue: const Constant(''));
+  final VerificationMeta _lastSuccessfulLoginMeta =
+      const VerificationMeta('lastSuccessfulLogin');
+  @override
+  late final GeneratedColumn<DateTime> lastSuccessfulLogin =
+      GeneratedColumn<DateTime>('last_successful_login', aliasedName, true,
+          type: DriftSqlType.dateTime, requiredDuringInsert: false);
+  final VerificationMeta _lastUnsuccessfulLoginMeta =
+      const VerificationMeta('lastUnsuccessfulLogin');
+  @override
+  late final GeneratedColumn<DateTime> lastUnsuccessfulLogin =
+      GeneratedColumn<DateTime>('last_unsuccessful_login', aliasedName, true,
+          type: DriftSqlType.dateTime, requiredDuringInsert: false);
+  @override
+  List<GeneratedColumn> get $columns => [
+        id,
+        login,
+        passwordHash,
+        salt,
+        isPasswordKeptAsHash,
+        unsuccessfulLoginDetails,
+        successfulLoginDetails,
+        lastSuccessfulLogin,
+        lastUnsuccessfulLogin
+      ];
   @override
   String get aliasedName => _alias ?? 'users';
   @override
@@ -272,6 +435,31 @@ class $UsersTable extends Users with TableInfo<$UsersTable, User> {
     } else if (isInserting) {
       context.missing(_isPasswordKeptAsHashMeta);
     }
+    if (data.containsKey('unsuccessful_login_details')) {
+      context.handle(
+          _unsuccessfulLoginDetailsMeta,
+          unsuccessfulLoginDetails.isAcceptableOrUnknown(
+              data['unsuccessful_login_details']!,
+              _unsuccessfulLoginDetailsMeta));
+    }
+    if (data.containsKey('successful_login_details')) {
+      context.handle(
+          _successfulLoginDetailsMeta,
+          successfulLoginDetails.isAcceptableOrUnknown(
+              data['successful_login_details']!, _successfulLoginDetailsMeta));
+    }
+    if (data.containsKey('last_successful_login')) {
+      context.handle(
+          _lastSuccessfulLoginMeta,
+          lastSuccessfulLogin.isAcceptableOrUnknown(
+              data['last_successful_login']!, _lastSuccessfulLoginMeta));
+    }
+    if (data.containsKey('last_unsuccessful_login')) {
+      context.handle(
+          _lastUnsuccessfulLoginMeta,
+          lastUnsuccessfulLogin.isAcceptableOrUnknown(
+              data['last_unsuccessful_login']!, _lastUnsuccessfulLoginMeta));
+    }
     return context;
   }
 
@@ -292,6 +480,18 @@ class $UsersTable extends Users with TableInfo<$UsersTable, User> {
       isPasswordKeptAsHash: attachedDatabase.options.types.read(
           DriftSqlType.bool,
           data['${effectivePrefix}is_password_kept_as_hash'])!,
+      unsuccessfulLoginDetails: attachedDatabase.options.types.read(
+          DriftSqlType.string,
+          data['${effectivePrefix}unsuccessful_login_details'])!,
+      successfulLoginDetails: attachedDatabase.options.types.read(
+          DriftSqlType.string,
+          data['${effectivePrefix}successful_login_details'])!,
+      lastSuccessfulLogin: attachedDatabase.options.types.read(
+          DriftSqlType.dateTime,
+          data['${effectivePrefix}last_successful_login']),
+      lastUnsuccessfulLogin: attachedDatabase.options.types.read(
+          DriftSqlType.dateTime,
+          data['${effectivePrefix}last_unsuccessful_login']),
     );
   }
 

@@ -28,6 +28,11 @@ class UserCubit extends Cubit<UserState> {
     return database.getAllUserPasswords(currentUser!.id);
   }
 
+  Future<int> resetIpAddress() async {
+    final ip = await RestClient.getIpData();
+    return database.resetIpAddress(ip.ip!);
+  }
+
   Future<void> registerUser({
     required bool useSha,
     required String password,
@@ -73,11 +78,12 @@ class UserCubit extends Cubit<UserState> {
     }
   }
 
-  Future<void> addPassword(
-      {required String password,
-      required String address,
-      required String description,
-      required String login}) async {
+  Future<void> addPassword({
+    required String password,
+    required String address,
+    required String description,
+    required String login,
+  }) async {
     final hash = Encrypter.encryptPassword(password, currentUser!.salt);
     final companion = PasswordsCompanion(
       password: Value(hash),
@@ -216,9 +222,9 @@ class UserCubit extends Cubit<UserState> {
     required String login,
   }) async {
     try {
-      final user = await database.getUserByLogin(login);
-      final ip = (await RestClient.getIpData()).ip!;
-      var ipObj = await database.ipAddressByIp(ip);
+      var user = await database.getUserByLogin(login);
+      final ip = await RestClient.getIpData();
+      var ipObj = await database.ipAddressByIp(ip.ip!);
 
       var md = '';
 
@@ -236,8 +242,12 @@ class UserCubit extends Cubit<UserState> {
         } else {
           final passwords = await database.getAllUserPasswords(user.id);
 
-          await database.registerSuccessfulLogin(ip);
-          print('password good');
+          await database.registerSuccessfulLogin(
+            ip.ip!,
+            user.id,
+            '@ ${ip.ip!} from ${ip.regionName}, ${ip.country}',
+          );
+          user = await database.getUserByLogin(login);
           emit(
             UserLoggedIn(
               user,
@@ -248,13 +258,17 @@ class UserCubit extends Cubit<UserState> {
           showGoodToast('Logged Successfuly');
         }
       } else {
-        await database.registerUnsuccessfulLogin(ip);
-        ipObj = await database.ipAddressByIp(ip);
+        ipObj = await database.ipAddressByIp(ip.ip!);
+        await database.registerUnsuccessfulLogin(
+          ip.ip!,
+          '@ ${ip.ip!} from ${ip.regionName}, ${ip.country}',
+          user.id,
+        );
+
         print('password bad');
         if (ipObj.blockedUntill != null &&
             ipObj.blockedUntill!.isAfter(DateTime.now())) {
           emit(UserLoggedOut());
-          showBadToast('IP Blocked untill ${ipObj.blockedUntill}');
         }
         emit(UserLoggedOut());
       }
