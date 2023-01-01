@@ -508,13 +508,15 @@ class Password extends DataClass implements Insertable<Password> {
   final String webAddress;
   final String descritpion;
   final String login;
+  final String? sharedFor;
   const Password(
       {required this.id,
       required this.password,
       required this.idUser,
       required this.webAddress,
       required this.descritpion,
-      required this.login});
+      required this.login,
+      this.sharedFor});
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
@@ -524,6 +526,9 @@ class Password extends DataClass implements Insertable<Password> {
     map['web_address'] = Variable<String>(webAddress);
     map['descritpion'] = Variable<String>(descritpion);
     map['login'] = Variable<String>(login);
+    if (!nullToAbsent || sharedFor != null) {
+      map['shared_for'] = Variable<String>(sharedFor);
+    }
     return map;
   }
 
@@ -535,6 +540,9 @@ class Password extends DataClass implements Insertable<Password> {
       webAddress: Value(webAddress),
       descritpion: Value(descritpion),
       login: Value(login),
+      sharedFor: sharedFor == null && nullToAbsent
+          ? const Value.absent()
+          : Value(sharedFor),
     );
   }
 
@@ -548,6 +556,7 @@ class Password extends DataClass implements Insertable<Password> {
       webAddress: serializer.fromJson<String>(json['webAddress']),
       descritpion: serializer.fromJson<String>(json['descritpion']),
       login: serializer.fromJson<String>(json['login']),
+      sharedFor: serializer.fromJson<String?>(json['sharedFor']),
     );
   }
   @override
@@ -560,6 +569,7 @@ class Password extends DataClass implements Insertable<Password> {
       'webAddress': serializer.toJson<String>(webAddress),
       'descritpion': serializer.toJson<String>(descritpion),
       'login': serializer.toJson<String>(login),
+      'sharedFor': serializer.toJson<String?>(sharedFor),
     };
   }
 
@@ -569,7 +579,8 @@ class Password extends DataClass implements Insertable<Password> {
           int? idUser,
           String? webAddress,
           String? descritpion,
-          String? login}) =>
+          String? login,
+          Value<String?> sharedFor = const Value.absent()}) =>
       Password(
         id: id ?? this.id,
         password: password ?? this.password,
@@ -577,6 +588,7 @@ class Password extends DataClass implements Insertable<Password> {
         webAddress: webAddress ?? this.webAddress,
         descritpion: descritpion ?? this.descritpion,
         login: login ?? this.login,
+        sharedFor: sharedFor.present ? sharedFor.value : this.sharedFor,
       );
   @override
   String toString() {
@@ -586,14 +598,15 @@ class Password extends DataClass implements Insertable<Password> {
           ..write('idUser: $idUser, ')
           ..write('webAddress: $webAddress, ')
           ..write('descritpion: $descritpion, ')
-          ..write('login: $login')
+          ..write('login: $login, ')
+          ..write('sharedFor: $sharedFor')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode =>
-      Object.hash(id, password, idUser, webAddress, descritpion, login);
+  int get hashCode => Object.hash(
+      id, password, idUser, webAddress, descritpion, login, sharedFor);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -603,7 +616,8 @@ class Password extends DataClass implements Insertable<Password> {
           other.idUser == this.idUser &&
           other.webAddress == this.webAddress &&
           other.descritpion == this.descritpion &&
-          other.login == this.login);
+          other.login == this.login &&
+          other.sharedFor == this.sharedFor);
 }
 
 class PasswordsCompanion extends UpdateCompanion<Password> {
@@ -613,6 +627,7 @@ class PasswordsCompanion extends UpdateCompanion<Password> {
   final Value<String> webAddress;
   final Value<String> descritpion;
   final Value<String> login;
+  final Value<String?> sharedFor;
   const PasswordsCompanion({
     this.id = const Value.absent(),
     this.password = const Value.absent(),
@@ -620,6 +635,7 @@ class PasswordsCompanion extends UpdateCompanion<Password> {
     this.webAddress = const Value.absent(),
     this.descritpion = const Value.absent(),
     this.login = const Value.absent(),
+    this.sharedFor = const Value.absent(),
   });
   PasswordsCompanion.insert({
     this.id = const Value.absent(),
@@ -628,6 +644,7 @@ class PasswordsCompanion extends UpdateCompanion<Password> {
     required String webAddress,
     required String descritpion,
     required String login,
+    this.sharedFor = const Value.absent(),
   })  : password = Value(password),
         idUser = Value(idUser),
         webAddress = Value(webAddress),
@@ -640,6 +657,7 @@ class PasswordsCompanion extends UpdateCompanion<Password> {
     Expression<String>? webAddress,
     Expression<String>? descritpion,
     Expression<String>? login,
+    Expression<String>? sharedFor,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
@@ -648,6 +666,7 @@ class PasswordsCompanion extends UpdateCompanion<Password> {
       if (webAddress != null) 'web_address': webAddress,
       if (descritpion != null) 'descritpion': descritpion,
       if (login != null) 'login': login,
+      if (sharedFor != null) 'shared_for': sharedFor,
     });
   }
 
@@ -657,7 +676,8 @@ class PasswordsCompanion extends UpdateCompanion<Password> {
       Value<int>? idUser,
       Value<String>? webAddress,
       Value<String>? descritpion,
-      Value<String>? login}) {
+      Value<String>? login,
+      Value<String?>? sharedFor}) {
     return PasswordsCompanion(
       id: id ?? this.id,
       password: password ?? this.password,
@@ -665,6 +685,7 @@ class PasswordsCompanion extends UpdateCompanion<Password> {
       webAddress: webAddress ?? this.webAddress,
       descritpion: descritpion ?? this.descritpion,
       login: login ?? this.login,
+      sharedFor: sharedFor ?? this.sharedFor,
     );
   }
 
@@ -689,6 +710,9 @@ class PasswordsCompanion extends UpdateCompanion<Password> {
     if (login.present) {
       map['login'] = Variable<String>(login.value);
     }
+    if (sharedFor.present) {
+      map['shared_for'] = Variable<String>(sharedFor.value);
+    }
     return map;
   }
 
@@ -700,7 +724,8 @@ class PasswordsCompanion extends UpdateCompanion<Password> {
           ..write('idUser: $idUser, ')
           ..write('webAddress: $webAddress, ')
           ..write('descritpion: $descritpion, ')
-          ..write('login: $login')
+          ..write('login: $login, ')
+          ..write('sharedFor: $sharedFor')
           ..write(')'))
         .toString();
   }
@@ -747,9 +772,14 @@ class $PasswordsTable extends Passwords
   late final GeneratedColumn<String> login = GeneratedColumn<String>(
       'login', aliasedName, false,
       type: DriftSqlType.string, requiredDuringInsert: true);
+  final VerificationMeta _sharedForMeta = const VerificationMeta('sharedFor');
+  @override
+  late final GeneratedColumn<String> sharedFor = GeneratedColumn<String>(
+      'shared_for', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
   @override
   List<GeneratedColumn> get $columns =>
-      [id, password, idUser, webAddress, descritpion, login];
+      [id, password, idUser, webAddress, descritpion, login, sharedFor];
   @override
   String get aliasedName => _alias ?? 'passwords';
   @override
@@ -796,6 +826,10 @@ class $PasswordsTable extends Passwords
     } else if (isInserting) {
       context.missing(_loginMeta);
     }
+    if (data.containsKey('shared_for')) {
+      context.handle(_sharedForMeta,
+          sharedFor.isAcceptableOrUnknown(data['shared_for']!, _sharedForMeta));
+    }
     return context;
   }
 
@@ -817,6 +851,8 @@ class $PasswordsTable extends Passwords
           .read(DriftSqlType.string, data['${effectivePrefix}descritpion'])!,
       login: attachedDatabase.options.types
           .read(DriftSqlType.string, data['${effectivePrefix}login'])!,
+      sharedFor: attachedDatabase.options.types
+          .read(DriftSqlType.string, data['${effectivePrefix}shared_for']),
     );
   }
 

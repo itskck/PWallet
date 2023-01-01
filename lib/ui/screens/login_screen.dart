@@ -1,4 +1,3 @@
-import 'package:drift_db_viewer/drift_db_viewer.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -6,7 +5,6 @@ import 'package:lottie/lottie.dart';
 import 'package:pwallet/bloc/user/user_cubit.dart';
 import 'package:pwallet/bloc/user/user_state.dart';
 import 'package:pwallet/constants.dart';
-import 'package:pwallet/ui/screens/pass_page.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -81,7 +79,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       child: const Text('Create new account'),
                     ),
                     const SizedBox(
-                      height: 100,
+                      height: 200,
                     ),
                   ],
                 ),

@@ -18,7 +18,7 @@ class PassPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    var width = MediaQuery.of(context).size.width;
+    final width = MediaQuery.of(context).size.width;
     return BlocConsumer<UserCubit, UserState>(
       listener: (context, state) {
         if (state is UserLoggedOut) {
@@ -56,7 +56,7 @@ class PassPage extends StatelessWidget {
             ),
           );
         } else {
-          return SizedBox();
+          return const SizedBox();
         }
       },
     );

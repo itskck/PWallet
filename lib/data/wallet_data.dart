@@ -1,9 +1,6 @@
 import 'package:drift/drift.dart';
-import 'package:drift/wasm.dart';
 import 'package:drift/web.dart';
-import 'package:http/http.dart' as http;
 import 'package:pwallet/utils/utils.dart';
-import 'package:sqlite3/wasm.dart';
 
 part 'wallet_data.g.dart';
 
@@ -15,6 +12,7 @@ class Passwords extends Table {
   TextColumn get webAddress => text()();
   TextColumn get descritpion => text()();
   TextColumn get login => text()();
+  TextColumn get sharedFor => text().nullable()();
 }
 
 @DataClassName('User')
@@ -86,12 +84,18 @@ class MyDatabase extends _$MyDatabase {
   }
 
   Future<int> registerUnsuccessfulLogin(
-      String ip, String details, int id) async {
+    String ip,
+    String details,
+    int id,
+  ) async {
     final ipAddress = await ipAddressByIp(ip);
 
     late DateTime? blockedUntill = DateTime.now();
-
-    if (ipAddress.subsequentFail + 1 == 2) {
+    if (ipAddress.subsequentFail + 1 == 1) {
+      showBadToast(
+        'Wrong login or password. Next time there will be a blockade.',
+      );
+    } else if (ipAddress.subsequentFail + 1 == 2) {
       blockedUntill = blockedUntill.add(const Duration(seconds: 5));
       showBadToast('Wrong login or password. Account blocked for 5 seconds.');
     } else if (ipAddress.subsequentFail + 1 == 3) {
