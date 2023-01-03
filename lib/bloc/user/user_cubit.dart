@@ -59,14 +59,17 @@ class UserCubit extends Cubit<UserState> {
       );
 
       final ipResponse = await RestClient.getIpData();
-      final String ip = ipResponse.ip!;
+      IpAddress? ipObj = await database.ipAddressByIp(ipResponse.ip!);
+      if (ipObj == null) {
+        final String ip = ipResponse.ip!;
 
-      final ipCompanion = IpAddressesCompanion(
-        ipAddress: Value(ip),
-      );
+        final ipCompanion = IpAddressesCompanion(
+          ipAddress: Value(ip),
+        );
+        await database.addIp(ipCompanion);
+      }
 
       await database.addUser(companion);
-      await database.addIp(ipCompanion);
 
       emit(UserRegisterDone());
     } catch (e, s) {
@@ -101,6 +104,7 @@ class UserCubit extends Cubit<UserState> {
         currentUser!,
         passwords,
         null,
+        false,
       ),
     );
   }
@@ -117,6 +121,7 @@ class UserCubit extends Cubit<UserState> {
           currentUser!,
           passwords,
           null,
+          false,
         ),
       );
     } catch (e, s) {
@@ -141,6 +146,7 @@ class UserCubit extends Cubit<UserState> {
           user,
           passwords,
           null,
+          false,
         ),
       );
     } catch (e, s) {
@@ -177,8 +183,8 @@ class UserCubit extends Cubit<UserState> {
         final passwords = await database.getAllUserPasswords(currentUser!.id);
         await database.removeAllUserPasswords(currentUser!.id);
         await database.updatePassword(md, newSalt, currentUser!.id);
-        List<Password> tempPasswords = [];
-        List<String> decryptedPasswords = [];
+        final List<Password> tempPasswords = [];
+        final List<String> decryptedPasswords = [];
 
         for (int i = 0; i < passwords.length; i++) {
           decryptedPasswords.add(
@@ -222,9 +228,21 @@ class UserCubit extends Cubit<UserState> {
     required String login,
   }) async {
     try {
+      print('loging with $login');
+      print('password $password');
       var user = await database.getUserByLogin(login);
+
       final ip = await RestClient.getIpData();
-      var ipObj = await database.ipAddressByIp(ip.ip!);
+      IpAddress? ipObj = await database.ipAddressByIp(ip.ip!);
+
+      if (ipObj == null) {
+        print('what');
+        await database.addIp(
+          IpAddressesCompanion.insert(ipAddress: ip.ip!),
+        );
+      }
+
+      ipObj = await database.ipAddressByIp(ip.ip!);
 
       var md = '';
 
@@ -235,7 +253,7 @@ class UserCubit extends Cubit<UserState> {
       }
 
       if (md == user.passwordHash) {
-        if (ipObj.blockedUntill != null &&
+        if (ipObj!.blockedUntill != null &&
             ipObj.blockedUntill!.isAfter(DateTime.now())) {
           emit(UserLoggedOut());
           showBadToast('IP Blocked untill ${ipObj.blockedUntill}');
@@ -253,6 +271,7 @@ class UserCubit extends Cubit<UserState> {
               user,
               passwords,
               null,
+              false,
             ),
           );
           showGoodToast('Logged Successfuly');
@@ -266,7 +285,7 @@ class UserCubit extends Cubit<UserState> {
         );
 
         print('password bad');
-        if (ipObj.blockedUntill != null &&
+        if (ipObj!.blockedUntill != null &&
             ipObj.blockedUntill!.isAfter(DateTime.now())) {
           emit(UserLoggedOut());
         }
@@ -283,7 +302,41 @@ class UserCubit extends Cubit<UserState> {
     }
   }
 
-  Future<void> setShownWidget(Password password) async {
+  Future<void> sharePassword(int passwordId, String login) async {
+    try {
+      if (login == currentUser!.login) {
+        showBadToast('You cannot share password to the owner');
+        return;
+      }
+      final bool userExists = await checkIfUserExists(login);
+      if (!userExists) {
+        showBadToast('Provided user does not exists');
+        return;
+      }
+      final User userToShare = await database.getUserByLogin(login);
+
+      final String sharedUsersString =
+          await database.getSharedUsers(passwordId);
+      final List<String> sharedUsers = sharedUsersString.split(',')
+        ..add(userToShare.id.toString());
+      await database.editSharedUsers(passwordId, sharedUsers.join(','));
+      showGoodToast(
+        'Password shared to successfully',
+      );
+    } catch (e, s) {
+      log(
+        'Error while loging in',
+        stackTrace: s,
+      );
+    }
+  }
+
+  Future<bool> checkIfUserExists(String login) async {
+    final List<User> users = await database.getAllUsers();
+    return users.any((element) => element.login == login);
+  }
+
+  Future<void> setShownWidget(Password password, bool editable) async {
     final passwords = await userPasswords;
     final user = currentUser!;
 
@@ -292,6 +345,7 @@ class UserCubit extends Cubit<UserState> {
         user,
         passwords,
         password,
+        editable,
       ),
     );
   }

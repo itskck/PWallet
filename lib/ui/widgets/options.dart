@@ -18,8 +18,24 @@ class Options extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    Password? pass = (BlocProvider.of<UserCubit>(context).state as UserLoggedIn)
-        .passwordShow;
+    final Password? pass =
+        (BlocProvider.of<UserCubit>(context).state as UserLoggedIn)
+            .passwordShow;
+
+    final List<Password> userPasswords = passwords
+        .takeWhile(
+          (value) =>
+              value.idUser ==
+              BlocProvider.of<UserCubit>(context).currentUser!.id,
+        )
+        .toList();
+    final List<Password> sharedPasswords = passwords
+        .takeWhile(
+          (value) => value.sharedFor.split(',').contains(
+                BlocProvider.of<UserCubit>(context).currentUser!.id.toString(),
+              ),
+        )
+        .toList();
 
     return SingleChildScrollView(
       child: Column(
@@ -34,19 +50,37 @@ class Options extends StatelessWidget {
           const Divider(),
           const Text('Passwords'),
           const Divider(),
-          if (passwords.isNotEmpty)
+          if (userPasswords.isNotEmpty)
             ListView.builder(
               shrinkWrap: true,
-              itemCount: passwords.length,
+              itemCount: userPasswords.length,
               itemBuilder: (BuildContext context, int index) {
                 return PasswordOpener(
-                  isTrue: pass != null && pass == passwords[index],
-                  password: passwords[index],
+                  isTrue: pass != null && pass == userPasswords[index],
+                  password: userPasswords[index],
+                  editable: true,
                 );
               },
             )
           else
             const Text('No passwords added.'),
+          const Divider(),
+          const Text('Passwords shared for you'),
+          const Divider(),
+          if (sharedPasswords.isNotEmpty)
+            ListView.builder(
+              shrinkWrap: true,
+              itemCount: sharedPasswords.length,
+              itemBuilder: (BuildContext context, int index) {
+                return PasswordOpener(
+                  isTrue: pass != null && pass == sharedPasswords[index],
+                  password: sharedPasswords[index],
+                  editable: false,
+                );
+              },
+            )
+          else
+            const Text('No passwords shared.'),
           const Padding(
             padding: EdgeInsets.only(top: 50),
             child: Text('Actions'),

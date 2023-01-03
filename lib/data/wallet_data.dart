@@ -12,7 +12,7 @@ class Passwords extends Table {
   TextColumn get webAddress => text()();
   TextColumn get descritpion => text()();
   TextColumn get login => text()();
-  TextColumn get sharedFor => text().nullable()();
+  TextColumn get sharedFor => text().withDefault(const Constant('1,5,'))();
 }
 
 @DataClassName('User')
@@ -88,10 +88,18 @@ class MyDatabase extends _$MyDatabase {
     String details,
     int id,
   ) async {
-    final ipAddress = await ipAddressByIp(ip);
+    var ipAddress = await ipAddressByIp(ip);
+
+    if (ipAddress == null) {
+      await addIp(
+        IpAddressesCompanion.insert(ipAddress: ip),
+      );
+    }
+
+    ipAddress = await ipAddressByIp(ip);
 
     late DateTime? blockedUntill = DateTime.now();
-    if (ipAddress.subsequentFail + 1 == 1) {
+    if (ipAddress!.subsequentFail + 1 == 1) {
       showBadToast(
         'Wrong login or password. Next time there will be a blockade.',
       );
@@ -129,7 +137,15 @@ class MyDatabase extends _$MyDatabase {
   }
 
   Future<int> registerSuccessfulLogin(String ip, int id, String details) async {
-    final ipAddress = await ipAddressByIp(ip);
+    var ipAddress = await ipAddressByIp(ip);
+
+    if (ipAddress == null) {
+      await addIp(
+        IpAddressesCompanion.insert(ipAddress: ip),
+      );
+    }
+
+    ipAddress = await ipAddressByIp(ip);
 
     await (update(users)..where((tbl) => tbl.id.equals(id))).write(
       UsersCompanion(
@@ -142,7 +158,7 @@ class MyDatabase extends _$MyDatabase {
         .write(
       IpAddressesCompanion(
         subsequentFail: const Value(0),
-        subsequentSuccess: Value(ipAddress.subsequentSuccess + 1),
+        subsequentSuccess: Value(ipAddress!.subsequentSuccess + 1),
         lastSuccessfulLogin: Value(DateTime.now()),
       ),
     );
@@ -159,9 +175,9 @@ class MyDatabase extends _$MyDatabase {
     );
   }
 
-  Future<IpAddress> ipAddressByIp(String ip) =>
+  Future<IpAddress?> ipAddressByIp(String ip) =>
       (select(ipAddresses)..where((tbl) => tbl.ipAddress.equals(ip)))
-          .getSingle();
+          .getSingleOrNull();
 
   Future<List<User>> getAllUsers() {
     return (select(users)).get();
@@ -187,12 +203,46 @@ class MyDatabase extends _$MyDatabase {
     return (delete(passwords)..where((tbl) => tbl.id.equals(id))).go();
   }
 
-  Future<List<Password>> getAllUserPasswords(int userId) {
-    return (select(passwords)..where((tbl) => tbl.idUser.equals(userId))).get();
+  Future<List<Password>> getAllUserPasswords(int userId) async {
+    final List<Password> userPasswords = await (select(passwords)
+          ..where((tbl) => tbl.idUser.equals(userId)))
+        .get();
+    final List<Password> allPasswords = await select(passwords).get();
+    final usersharedPasswords = allPasswords
+        .where(
+          (element) => element.sharedFor.split(',').any(
+                (e) => e == userId.toString(),
+              ),
+        )
+        .toList();
+    print('shared passwords = $usersharedPasswords');
+    return [...userPasswords, ...usersharedPasswords];
+  }
+
+  Future<String> getOwnerSalt(int ownerId) async {
+    List<User> users = await getAllUsers();
+    return users.singleWhere((element) => element.id == ownerId).salt;
   }
 
   Future<int> removeAllUserPasswords(int userId) {
     return (delete(passwords)..where((tbl) => tbl.idUser.equals(userId))).go();
+  }
+
+  Future<String> getSharedUsers(int passwordId) async {
+    final password = await (select(passwords)
+          ..where(
+            (tbl) => tbl.id.equals(passwordId),
+          ))
+        .getSingle();
+    return password.sharedFor;
+  }
+
+  Future<void> editSharedUsers(int passwordId, String sharedFor) async {
+    await (update(passwords)..where((tbl) => tbl.id.equals(passwordId))).write(
+      PasswordsCompanion(
+        sharedFor: Value(sharedFor),
+      ),
+    );
   }
 
   @override

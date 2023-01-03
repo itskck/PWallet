@@ -47,7 +47,10 @@ class PassPage extends StatelessWidget {
                     child: Padding(
                       padding: const EdgeInsets.all(32),
                       child: state.passwordShow != null
-                          ? PasswordShown(password: state.passwordShow!)
+                          ? PasswordShown(
+                              password: state.passwordShow!,
+                              editable: state.currentPasswordEditable,
+                            )
                           : const SizedBox(),
                     ),
                   ),

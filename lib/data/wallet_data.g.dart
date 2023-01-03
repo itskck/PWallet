@@ -508,7 +508,7 @@ class Password extends DataClass implements Insertable<Password> {
   final String webAddress;
   final String descritpion;
   final String login;
-  final String? sharedFor;
+  final String sharedFor;
   const Password(
       {required this.id,
       required this.password,
@@ -516,7 +516,7 @@ class Password extends DataClass implements Insertable<Password> {
       required this.webAddress,
       required this.descritpion,
       required this.login,
-      this.sharedFor});
+      required this.sharedFor});
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
@@ -526,9 +526,7 @@ class Password extends DataClass implements Insertable<Password> {
     map['web_address'] = Variable<String>(webAddress);
     map['descritpion'] = Variable<String>(descritpion);
     map['login'] = Variable<String>(login);
-    if (!nullToAbsent || sharedFor != null) {
-      map['shared_for'] = Variable<String>(sharedFor);
-    }
+    map['shared_for'] = Variable<String>(sharedFor);
     return map;
   }
 
@@ -540,9 +538,7 @@ class Password extends DataClass implements Insertable<Password> {
       webAddress: Value(webAddress),
       descritpion: Value(descritpion),
       login: Value(login),
-      sharedFor: sharedFor == null && nullToAbsent
-          ? const Value.absent()
-          : Value(sharedFor),
+      sharedFor: Value(sharedFor),
     );
   }
 
@@ -556,7 +552,7 @@ class Password extends DataClass implements Insertable<Password> {
       webAddress: serializer.fromJson<String>(json['webAddress']),
       descritpion: serializer.fromJson<String>(json['descritpion']),
       login: serializer.fromJson<String>(json['login']),
-      sharedFor: serializer.fromJson<String?>(json['sharedFor']),
+      sharedFor: serializer.fromJson<String>(json['sharedFor']),
     );
   }
   @override
@@ -569,7 +565,7 @@ class Password extends DataClass implements Insertable<Password> {
       'webAddress': serializer.toJson<String>(webAddress),
       'descritpion': serializer.toJson<String>(descritpion),
       'login': serializer.toJson<String>(login),
-      'sharedFor': serializer.toJson<String?>(sharedFor),
+      'sharedFor': serializer.toJson<String>(sharedFor),
     };
   }
 
@@ -580,7 +576,7 @@ class Password extends DataClass implements Insertable<Password> {
           String? webAddress,
           String? descritpion,
           String? login,
-          Value<String?> sharedFor = const Value.absent()}) =>
+          String? sharedFor}) =>
       Password(
         id: id ?? this.id,
         password: password ?? this.password,
@@ -588,7 +584,7 @@ class Password extends DataClass implements Insertable<Password> {
         webAddress: webAddress ?? this.webAddress,
         descritpion: descritpion ?? this.descritpion,
         login: login ?? this.login,
-        sharedFor: sharedFor.present ? sharedFor.value : this.sharedFor,
+        sharedFor: sharedFor ?? this.sharedFor,
       );
   @override
   String toString() {
@@ -627,7 +623,7 @@ class PasswordsCompanion extends UpdateCompanion<Password> {
   final Value<String> webAddress;
   final Value<String> descritpion;
   final Value<String> login;
-  final Value<String?> sharedFor;
+  final Value<String> sharedFor;
   const PasswordsCompanion({
     this.id = const Value.absent(),
     this.password = const Value.absent(),
@@ -677,7 +673,7 @@ class PasswordsCompanion extends UpdateCompanion<Password> {
       Value<String>? webAddress,
       Value<String>? descritpion,
       Value<String>? login,
-      Value<String?>? sharedFor}) {
+      Value<String>? sharedFor}) {
     return PasswordsCompanion(
       id: id ?? this.id,
       password: password ?? this.password,
@@ -775,8 +771,10 @@ class $PasswordsTable extends Passwords
   final VerificationMeta _sharedForMeta = const VerificationMeta('sharedFor');
   @override
   late final GeneratedColumn<String> sharedFor = GeneratedColumn<String>(
-      'shared_for', aliasedName, true,
-      type: DriftSqlType.string, requiredDuringInsert: false);
+      'shared_for', aliasedName, false,
+      type: DriftSqlType.string,
+      requiredDuringInsert: false,
+      defaultValue: const Constant(''));
   @override
   List<GeneratedColumn> get $columns =>
       [id, password, idUser, webAddress, descritpion, login, sharedFor];
@@ -852,7 +850,7 @@ class $PasswordsTable extends Passwords
       login: attachedDatabase.options.types
           .read(DriftSqlType.string, data['${effectivePrefix}login'])!,
       sharedFor: attachedDatabase.options.types
-          .read(DriftSqlType.string, data['${effectivePrefix}shared_for']),
+          .read(DriftSqlType.string, data['${effectivePrefix}shared_for'])!,
     );
   }
 

@@ -15,11 +15,17 @@ class UserChangingState extends UserState {
 }
 
 class UserLoggedIn extends UserState {
-  UserLoggedIn(this.user, this.passwords, this.passwordShow);
+  UserLoggedIn(
+    this.user,
+    this.passwords,
+    this.passwordShow,
+    this.currentPasswordEditable,
+  );
 
   final User user;
   final List<Password> passwords;
   final Password? passwordShow;
+  final bool currentPasswordEditable;
 
   @override
   List<Object?> get props => [user, passwords, passwordShow];

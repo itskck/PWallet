@@ -1,3 +1,4 @@
+import 'package:drift_db_viewer/drift_db_viewer.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -5,6 +6,7 @@ import 'package:lottie/lottie.dart';
 import 'package:pwallet/bloc/user/user_cubit.dart';
 import 'package:pwallet/bloc/user/user_state.dart';
 import 'package:pwallet/constants.dart';
+import 'package:pwallet/data/wallet_data.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -117,6 +119,23 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                   child: const Text('Reset my IP address'),
                 ),
+                const SizedBox(
+                  height: 20,
+                ),
+                // ElevatedButton(
+                //   onPressed: () {
+                //     final db = MyDatabase();
+                //     Navigator.of(context).push(
+                //       MaterialPageRoute(
+                //         builder: (context) => DriftDbViewer(db),
+                //       ),
+                //     );
+                //   },
+                //   style: ElevatedButton.styleFrom(
+                //     fixedSize: const Size(400, 40),
+                //   ),
+                //   child: const Text('Show db'),
+                // ),
               ],
             ),
           ),

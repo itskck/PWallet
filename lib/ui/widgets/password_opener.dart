@@ -8,10 +8,12 @@ class PasswordOpener extends StatelessWidget {
     super.key,
     required this.password,
     required this.isTrue,
+    required this.editable,
   });
 
   final Password password;
   final bool isTrue;
+  final bool editable;
 
   @override
   Widget build(BuildContext context) {
@@ -19,7 +21,10 @@ class PasswordOpener extends StatelessWidget {
       selected: isTrue,
       leading: Text(password.webAddress),
       trailing: const Icon(Icons.keyboard_arrow_right),
-      onTap: () => BlocProvider.of<UserCubit>(context).setShownWidget(password),
+      onTap: () => BlocProvider.of<UserCubit>(context).setShownWidget(
+        password,
+        editable,
+      ),
     );
   }
 }
