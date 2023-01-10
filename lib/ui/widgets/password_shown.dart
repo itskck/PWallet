@@ -97,11 +97,11 @@ class _PasswordShownState extends State<PasswordShown> {
                     IconButton(
                       onPressed: () {
                         if (sharedForController.text.isNotEmpty) {
-                          sharedForController.clear();
                           BlocProvider.of<UserCubit>(context).sharePassword(
                             widget.password.id,
                             sharedForController.text,
                           );
+                          sharedForController.clear();
                         } else {
                           showBadToast('Enter valid user nickname');
                         }

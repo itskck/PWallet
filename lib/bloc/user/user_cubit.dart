@@ -332,6 +332,7 @@ class UserCubit extends Cubit<UserState> {
   }
 
   Future<bool> checkIfUserExists(String login) async {
+    print('checkikng if user $login exists');
     final List<User> users = await database.getAllUsers();
     return users.any((element) => element.login == login);
   }

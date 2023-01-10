@@ -215,6 +215,7 @@ class MyDatabase extends _$MyDatabase {
               ),
         )
         .toList();
+    print('user passwords = $userPasswords');
     print('shared passwords = $usersharedPasswords');
     return [...userPasswords, ...usersharedPasswords];
   }

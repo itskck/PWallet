@@ -22,20 +22,17 @@ class Options extends StatelessWidget {
         (BlocProvider.of<UserCubit>(context).state as UserLoggedIn)
             .passwordShow;
 
-    final List<Password> userPasswords = passwords
-        .takeWhile(
-          (value) =>
-              value.idUser ==
-              BlocProvider.of<UserCubit>(context).currentUser!.id,
-        )
-        .toList();
-    final List<Password> sharedPasswords = passwords
-        .takeWhile(
-          (value) => value.sharedFor.split(',').contains(
-                BlocProvider.of<UserCubit>(context).currentUser!.id.toString(),
-              ),
-        )
-        .toList();
+    final List<Password> userPasswords = [];
+    final List<Password> sharedPasswords = [];
+
+    for (var p in passwords) {
+      if (p.sharedFor.split(',').contains(
+          BlocProvider.of<UserCubit>(context).currentUser!.id.toString())) {
+        sharedPasswords.add(p);
+      } else {
+        userPasswords.add(p);
+      }
+    }
 
     return SingleChildScrollView(
       child: Column(
