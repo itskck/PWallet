@@ -13,6 +13,7 @@ class Passwords extends Table {
   TextColumn get descritpion => text()();
   TextColumn get login => text()();
   TextColumn get sharedFor => text().withDefault(const Constant('1,5,'))();
+  BoolColumn get deleted => boolean().withDefault(const Constant(false))();
 }
 
 @DataClassName('User')
@@ -49,9 +50,36 @@ class IpAddresses extends Table {
   BoolColumn get permBlocked => boolean().withDefault(const Constant(false))();
 }
 
-@DriftDatabase(tables: [Passwords, Users, Logins, IpAddresses])
+@DataClassName('Log')
+class Logs extends Table {
+  TextColumn get ipAddress => text()();
+  DateTimeColumn get timestamp => dateTime()();
+  TextColumn get description => text()();
+  TextColumn get id => text()();
+}
+
+@DriftDatabase(tables: [Passwords, Users, Logins, IpAddresses, Logs])
 class MyDatabase extends _$MyDatabase {
   MyDatabase() : super(WebDatabase('database'));
+
+  Future<void> addLog(LogsCompanion entry) async {
+    await into(logs).insert(entry);
+  }
+
+  Future<User> getUserById(int id) async {
+    final user = await (select(users)
+          ..where(
+            (tbl) => tbl.id.equals(id),
+          )
+          ..limit(1))
+        .getSingle();
+
+    return user;
+  }
+
+  Future<List<Log>> getUserLogs(String id) {
+    return (select(logs)..where((tbl) => tbl.id.equals(id))).get();
+  }
 
   Future<int> addUser(UsersCompanion entry) {
     return into(users).insert(entry);
@@ -200,7 +228,19 @@ class MyDatabase extends _$MyDatabase {
   }
 
   Future<int> removePassword(int id) {
-    return (delete(passwords)..where((tbl) => tbl.id.equals(id))).go();
+    return (update(passwords)..where((tbl) => tbl.id.equals(id))).write(
+      const PasswordsCompanion(
+        deleted: Value(true),
+      ),
+    );
+  }
+
+  Future<int> unremovePassword(int id) {
+    return (update(passwords)..where((tbl) => tbl.id.equals(id))).write(
+      const PasswordsCompanion(
+        deleted: Value(false),
+      ),
+    );
   }
 
   Future<List<Password>> getAllUserPasswords(int userId) async {

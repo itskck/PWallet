@@ -4,6 +4,7 @@ import 'package:drift/drift.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hydrated_bloc/hydrated_bloc.dart';
+import 'package:path/path.dart';
 import 'package:pwallet/bloc/user/user_state.dart';
 import 'package:pwallet/constants.dart';
 import 'package:pwallet/data/network/rest_client.dart';
@@ -72,6 +73,8 @@ class UserCubit extends Cubit<UserState> {
       await database.addUser(companion);
 
       emit(UserRegisterDone());
+      final users2 = await database.getAllUsers();
+      print(users2.length);
     } catch (e, s) {
       emit(UserLoggedOut());
       log(
@@ -94,17 +97,30 @@ class UserCubit extends Cubit<UserState> {
       webAddress: Value(address),
       descritpion: Value(description),
       login: Value(login),
+      sharedFor: const Value(''),
     );
     await database.addPassword(companion);
     final passwords = await database.getAllUserPasswords(
       currentUser!.id,
     );
+    final ipResponse = await RestClient.getIpData();
+
+    await database.addLog(
+      LogsCompanion(
+        ipAddress: Value(ipResponse.ip!),
+        timestamp: Value(DateTime.now()),
+        description: const Value('Added password'),
+        id: Value(currentUser!.id.toString()),
+      ),
+    );
+    final logs = await database.getUserLogs(currentUser!.id.toString());
     emit(
       UserLoggedIn(
         currentUser!,
         passwords,
         null,
         false,
+        logs,
       ),
     );
   }
@@ -116,13 +132,19 @@ class UserCubit extends Cubit<UserState> {
       final passwords = await database.getAllUserPasswords(
         currentUser!.id,
       );
-      emit(
-        UserLoggedIn(
-          currentUser!,
-          passwords,
-          null,
-          false,
+      final ipResponse = await RestClient.getIpData();
+
+      await database.addLog(
+        LogsCompanion(
+          ipAddress: Value(ipResponse.ip!),
+          timestamp: Value(DateTime.now()),
+          description: const Value('Edited password'),
+          id: Value(currentUser!.id.toString()),
         ),
+      );
+      final logs = await database.getUserLogs(currentUser!.id.toString());
+      emit(
+        UserLoggedIn(currentUser!, passwords, null, false, logs),
       );
     } catch (e, s) {
       log(
@@ -130,6 +152,37 @@ class UserCubit extends Cubit<UserState> {
         stackTrace: s,
       );
       showBadToast('Error while editing password');
+    }
+  }
+
+  Future<void> unremovePassword(int id) async {
+    try {
+      final user = currentUser!;
+
+      await database.unremovePassword(id);
+      final passwords = await database.getAllUserPasswords(
+        currentUser!.id,
+      );
+      final ipResponse = await RestClient.getIpData();
+
+      await database.addLog(
+        LogsCompanion(
+          ipAddress: Value(ipResponse.ip!),
+          timestamp: Value(DateTime.now()),
+          description: const Value('Reverted password'),
+          id: Value(currentUser!.id.toString()),
+        ),
+      );
+      final logs = await database.getUserLogs(currentUser!.id.toString());
+      emit(
+        UserLoggedIn(user, passwords, null, false, logs),
+      );
+    } catch (e, s) {
+      log(
+        'Error while unremoving password',
+        stackTrace: s,
+      );
+      showBadToast('Error while unremoving password');
     }
   }
 
@@ -141,13 +194,19 @@ class UserCubit extends Cubit<UserState> {
       final passwords = await database.getAllUserPasswords(
         currentUser!.id,
       );
-      emit(
-        UserLoggedIn(
-          user,
-          passwords,
-          null,
-          false,
+      final ipResponse = await RestClient.getIpData();
+
+      await database.addLog(
+        LogsCompanion(
+          ipAddress: Value(ipResponse.ip!),
+          timestamp: Value(DateTime.now()),
+          description: const Value('Deleted password'),
+          id: Value(currentUser!.id.toString()),
         ),
+      );
+      final logs = await database.getUserLogs(currentUser!.id.toString());
+      emit(
+        UserLoggedIn(user, passwords, null, false, logs),
       );
     } catch (e, s) {
       log(
@@ -267,12 +326,19 @@ class UserCubit extends Cubit<UserState> {
           );
           user = await database.getUserByLogin(login);
           emit(
-            UserLoggedIn(
-              user,
-              passwords,
-              null,
-              false,
+            UserLoggedIn(user, passwords, null, false, []),
+          );
+          await database.addLog(
+            LogsCompanion(
+              ipAddress: Value(ip.ip!),
+              timestamp: Value(DateTime.now()),
+              description: const Value('User logged in'),
+              id: Value(currentUser!.id.toString()),
             ),
+          );
+          final logs = await database.getUserLogs(currentUser!.id.toString());
+          emit(
+            UserLoggedIn(user, passwords, null, false, logs),
           );
           showGoodToast('Logged Successfuly');
         }
@@ -314,6 +380,17 @@ class UserCubit extends Cubit<UserState> {
         return;
       }
       final User userToShare = await database.getUserByLogin(login);
+      final ipResponse = await RestClient.getIpData();
+
+      await database.addLog(
+        LogsCompanion(
+          ipAddress: Value(ipResponse.ip!),
+          timestamp: Value(DateTime.now()),
+          description: const Value('Password shared'),
+          id: Value(currentUser!.id.toString()),
+        ),
+      );
+      final logs = await database.getUserLogs(currentUser!.id.toString());
 
       final String sharedUsersString =
           await database.getSharedUsers(passwordId);
@@ -322,6 +399,12 @@ class UserCubit extends Cubit<UserState> {
       await database.editSharedUsers(passwordId, sharedUsers.join(','));
       showGoodToast(
         'Password shared to successfully',
+      );
+      final passwords = await database.getAllUserPasswords(
+        currentUser!.id,
+      );
+      emit(
+        UserLoggedIn(currentUser!, passwords, null, false, logs),
       );
     } catch (e, s) {
       log(
@@ -340,14 +423,11 @@ class UserCubit extends Cubit<UserState> {
   Future<void> setShownWidget(Password password, bool editable) async {
     final passwords = await userPasswords;
     final user = currentUser!;
+    final ipResponse = await RestClient.getIpData();
 
+    final logs = await database.getUserLogs(currentUser!.id.toString());
     emit(
-      UserLoggedIn(
-        user,
-        passwords,
-        password,
-        editable,
-      ),
+      UserLoggedIn(user, passwords, password, editable, logs),
     );
   }
 

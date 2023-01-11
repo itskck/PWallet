@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:pwallet/bloc/user/user_cubit.dart';
+import 'package:pwallet/bloc/user/user_state.dart';
 import 'package:pwallet/data/wallet_data.dart';
+import 'package:pwallet/ui/widgets/log_row.dart';
 import 'package:pwallet/utils/encrypter.dart';
 import 'package:pwallet/utils/utils.dart';
 
@@ -195,7 +197,7 @@ class _PasswordShownState extends State<PasswordShown> {
                     ),
                   )
                 ],
-              )
+              ),
           ],
         ),
       ),

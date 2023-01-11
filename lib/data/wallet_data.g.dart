@@ -509,6 +509,7 @@ class Password extends DataClass implements Insertable<Password> {
   final String descritpion;
   final String login;
   final String sharedFor;
+  final bool deleted;
   const Password(
       {required this.id,
       required this.password,
@@ -516,7 +517,8 @@ class Password extends DataClass implements Insertable<Password> {
       required this.webAddress,
       required this.descritpion,
       required this.login,
-      required this.sharedFor});
+      required this.sharedFor,
+      required this.deleted});
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
@@ -527,6 +529,7 @@ class Password extends DataClass implements Insertable<Password> {
     map['descritpion'] = Variable<String>(descritpion);
     map['login'] = Variable<String>(login);
     map['shared_for'] = Variable<String>(sharedFor);
+    map['deleted'] = Variable<bool>(deleted);
     return map;
   }
 
@@ -539,6 +542,7 @@ class Password extends DataClass implements Insertable<Password> {
       descritpion: Value(descritpion),
       login: Value(login),
       sharedFor: Value(sharedFor),
+      deleted: Value(deleted),
     );
   }
 
@@ -553,6 +557,7 @@ class Password extends DataClass implements Insertable<Password> {
       descritpion: serializer.fromJson<String>(json['descritpion']),
       login: serializer.fromJson<String>(json['login']),
       sharedFor: serializer.fromJson<String>(json['sharedFor']),
+      deleted: serializer.fromJson<bool>(json['deleted']),
     );
   }
   @override
@@ -566,6 +571,7 @@ class Password extends DataClass implements Insertable<Password> {
       'descritpion': serializer.toJson<String>(descritpion),
       'login': serializer.toJson<String>(login),
       'sharedFor': serializer.toJson<String>(sharedFor),
+      'deleted': serializer.toJson<bool>(deleted),
     };
   }
 
@@ -576,7 +582,8 @@ class Password extends DataClass implements Insertable<Password> {
           String? webAddress,
           String? descritpion,
           String? login,
-          String? sharedFor}) =>
+          String? sharedFor,
+          bool? deleted}) =>
       Password(
         id: id ?? this.id,
         password: password ?? this.password,
@@ -585,6 +592,7 @@ class Password extends DataClass implements Insertable<Password> {
         descritpion: descritpion ?? this.descritpion,
         login: login ?? this.login,
         sharedFor: sharedFor ?? this.sharedFor,
+        deleted: deleted ?? this.deleted,
       );
   @override
   String toString() {
@@ -595,14 +603,15 @@ class Password extends DataClass implements Insertable<Password> {
           ..write('webAddress: $webAddress, ')
           ..write('descritpion: $descritpion, ')
           ..write('login: $login, ')
-          ..write('sharedFor: $sharedFor')
+          ..write('sharedFor: $sharedFor, ')
+          ..write('deleted: $deleted')
           ..write(')'))
         .toString();
   }
 
   @override
   int get hashCode => Object.hash(
-      id, password, idUser, webAddress, descritpion, login, sharedFor);
+      id, password, idUser, webAddress, descritpion, login, sharedFor, deleted);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -613,7 +622,8 @@ class Password extends DataClass implements Insertable<Password> {
           other.webAddress == this.webAddress &&
           other.descritpion == this.descritpion &&
           other.login == this.login &&
-          other.sharedFor == this.sharedFor);
+          other.sharedFor == this.sharedFor &&
+          other.deleted == this.deleted);
 }
 
 class PasswordsCompanion extends UpdateCompanion<Password> {
@@ -624,6 +634,7 @@ class PasswordsCompanion extends UpdateCompanion<Password> {
   final Value<String> descritpion;
   final Value<String> login;
   final Value<String> sharedFor;
+  final Value<bool> deleted;
   const PasswordsCompanion({
     this.id = const Value.absent(),
     this.password = const Value.absent(),
@@ -632,6 +643,7 @@ class PasswordsCompanion extends UpdateCompanion<Password> {
     this.descritpion = const Value.absent(),
     this.login = const Value.absent(),
     this.sharedFor = const Value.absent(),
+    this.deleted = const Value.absent(),
   });
   PasswordsCompanion.insert({
     this.id = const Value.absent(),
@@ -641,6 +653,7 @@ class PasswordsCompanion extends UpdateCompanion<Password> {
     required String descritpion,
     required String login,
     this.sharedFor = const Value.absent(),
+    this.deleted = const Value.absent(),
   })  : password = Value(password),
         idUser = Value(idUser),
         webAddress = Value(webAddress),
@@ -654,6 +667,7 @@ class PasswordsCompanion extends UpdateCompanion<Password> {
     Expression<String>? descritpion,
     Expression<String>? login,
     Expression<String>? sharedFor,
+    Expression<bool>? deleted,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
@@ -663,6 +677,7 @@ class PasswordsCompanion extends UpdateCompanion<Password> {
       if (descritpion != null) 'descritpion': descritpion,
       if (login != null) 'login': login,
       if (sharedFor != null) 'shared_for': sharedFor,
+      if (deleted != null) 'deleted': deleted,
     });
   }
 
@@ -673,7 +688,8 @@ class PasswordsCompanion extends UpdateCompanion<Password> {
       Value<String>? webAddress,
       Value<String>? descritpion,
       Value<String>? login,
-      Value<String>? sharedFor}) {
+      Value<String>? sharedFor,
+      Value<bool>? deleted}) {
     return PasswordsCompanion(
       id: id ?? this.id,
       password: password ?? this.password,
@@ -682,6 +698,7 @@ class PasswordsCompanion extends UpdateCompanion<Password> {
       descritpion: descritpion ?? this.descritpion,
       login: login ?? this.login,
       sharedFor: sharedFor ?? this.sharedFor,
+      deleted: deleted ?? this.deleted,
     );
   }
 
@@ -709,6 +726,9 @@ class PasswordsCompanion extends UpdateCompanion<Password> {
     if (sharedFor.present) {
       map['shared_for'] = Variable<String>(sharedFor.value);
     }
+    if (deleted.present) {
+      map['deleted'] = Variable<bool>(deleted.value);
+    }
     return map;
   }
 
@@ -721,7 +741,8 @@ class PasswordsCompanion extends UpdateCompanion<Password> {
           ..write('webAddress: $webAddress, ')
           ..write('descritpion: $descritpion, ')
           ..write('login: $login, ')
-          ..write('sharedFor: $sharedFor')
+          ..write('sharedFor: $sharedFor, ')
+          ..write('deleted: $deleted')
           ..write(')'))
         .toString();
   }
@@ -774,10 +795,26 @@ class $PasswordsTable extends Passwords
       'shared_for', aliasedName, false,
       type: DriftSqlType.string,
       requiredDuringInsert: false,
-      defaultValue: const Constant(''));
+      defaultValue: const Constant('1,5,'));
+  final VerificationMeta _deletedMeta = const VerificationMeta('deleted');
   @override
-  List<GeneratedColumn> get $columns =>
-      [id, password, idUser, webAddress, descritpion, login, sharedFor];
+  late final GeneratedColumn<bool> deleted = GeneratedColumn<bool>(
+      'deleted', aliasedName, false,
+      type: DriftSqlType.bool,
+      requiredDuringInsert: false,
+      defaultConstraints: 'CHECK ("deleted" IN (0, 1))',
+      defaultValue: const Constant(false));
+  @override
+  List<GeneratedColumn> get $columns => [
+        id,
+        password,
+        idUser,
+        webAddress,
+        descritpion,
+        login,
+        sharedFor,
+        deleted
+      ];
   @override
   String get aliasedName => _alias ?? 'passwords';
   @override
@@ -828,6 +865,10 @@ class $PasswordsTable extends Passwords
       context.handle(_sharedForMeta,
           sharedFor.isAcceptableOrUnknown(data['shared_for']!, _sharedForMeta));
     }
+    if (data.containsKey('deleted')) {
+      context.handle(_deletedMeta,
+          deleted.isAcceptableOrUnknown(data['deleted']!, _deletedMeta));
+    }
     return context;
   }
 
@@ -851,6 +892,8 @@ class $PasswordsTable extends Passwords
           .read(DriftSqlType.string, data['${effectivePrefix}login'])!,
       sharedFor: attachedDatabase.options.types
           .read(DriftSqlType.string, data['${effectivePrefix}shared_for'])!,
+      deleted: attachedDatabase.options.types
+          .read(DriftSqlType.bool, data['${effectivePrefix}deleted'])!,
     );
   }
 
@@ -1509,16 +1552,266 @@ class $IpAddressesTable extends IpAddresses
   }
 }
 
+class Log extends DataClass implements Insertable<Log> {
+  final String ipAddress;
+  final DateTime timestamp;
+  final String description;
+  final String id;
+  const Log(
+      {required this.ipAddress,
+      required this.timestamp,
+      required this.description,
+      required this.id});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['ip_address'] = Variable<String>(ipAddress);
+    map['timestamp'] = Variable<DateTime>(timestamp);
+    map['description'] = Variable<String>(description);
+    map['id'] = Variable<String>(id);
+    return map;
+  }
+
+  LogsCompanion toCompanion(bool nullToAbsent) {
+    return LogsCompanion(
+      ipAddress: Value(ipAddress),
+      timestamp: Value(timestamp),
+      description: Value(description),
+      id: Value(id),
+    );
+  }
+
+  factory Log.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return Log(
+      ipAddress: serializer.fromJson<String>(json['ipAddress']),
+      timestamp: serializer.fromJson<DateTime>(json['timestamp']),
+      description: serializer.fromJson<String>(json['description']),
+      id: serializer.fromJson<String>(json['id']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'ipAddress': serializer.toJson<String>(ipAddress),
+      'timestamp': serializer.toJson<DateTime>(timestamp),
+      'description': serializer.toJson<String>(description),
+      'id': serializer.toJson<String>(id),
+    };
+  }
+
+  Log copyWith(
+          {String? ipAddress,
+          DateTime? timestamp,
+          String? description,
+          String? id}) =>
+      Log(
+        ipAddress: ipAddress ?? this.ipAddress,
+        timestamp: timestamp ?? this.timestamp,
+        description: description ?? this.description,
+        id: id ?? this.id,
+      );
+  @override
+  String toString() {
+    return (StringBuffer('Log(')
+          ..write('ipAddress: $ipAddress, ')
+          ..write('timestamp: $timestamp, ')
+          ..write('description: $description, ')
+          ..write('id: $id')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(ipAddress, timestamp, description, id);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is Log &&
+          other.ipAddress == this.ipAddress &&
+          other.timestamp == this.timestamp &&
+          other.description == this.description &&
+          other.id == this.id);
+}
+
+class LogsCompanion extends UpdateCompanion<Log> {
+  final Value<String> ipAddress;
+  final Value<DateTime> timestamp;
+  final Value<String> description;
+  final Value<String> id;
+  const LogsCompanion({
+    this.ipAddress = const Value.absent(),
+    this.timestamp = const Value.absent(),
+    this.description = const Value.absent(),
+    this.id = const Value.absent(),
+  });
+  LogsCompanion.insert({
+    required String ipAddress,
+    required DateTime timestamp,
+    required String description,
+    required String id,
+  })  : ipAddress = Value(ipAddress),
+        timestamp = Value(timestamp),
+        description = Value(description),
+        id = Value(id);
+  static Insertable<Log> custom({
+    Expression<String>? ipAddress,
+    Expression<DateTime>? timestamp,
+    Expression<String>? description,
+    Expression<String>? id,
+  }) {
+    return RawValuesInsertable({
+      if (ipAddress != null) 'ip_address': ipAddress,
+      if (timestamp != null) 'timestamp': timestamp,
+      if (description != null) 'description': description,
+      if (id != null) 'id': id,
+    });
+  }
+
+  LogsCompanion copyWith(
+      {Value<String>? ipAddress,
+      Value<DateTime>? timestamp,
+      Value<String>? description,
+      Value<String>? id}) {
+    return LogsCompanion(
+      ipAddress: ipAddress ?? this.ipAddress,
+      timestamp: timestamp ?? this.timestamp,
+      description: description ?? this.description,
+      id: id ?? this.id,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (ipAddress.present) {
+      map['ip_address'] = Variable<String>(ipAddress.value);
+    }
+    if (timestamp.present) {
+      map['timestamp'] = Variable<DateTime>(timestamp.value);
+    }
+    if (description.present) {
+      map['description'] = Variable<String>(description.value);
+    }
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('LogsCompanion(')
+          ..write('ipAddress: $ipAddress, ')
+          ..write('timestamp: $timestamp, ')
+          ..write('description: $description, ')
+          ..write('id: $id')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $LogsTable extends Logs with TableInfo<$LogsTable, Log> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $LogsTable(this.attachedDatabase, [this._alias]);
+  final VerificationMeta _ipAddressMeta = const VerificationMeta('ipAddress');
+  @override
+  late final GeneratedColumn<String> ipAddress = GeneratedColumn<String>(
+      'ip_address', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  final VerificationMeta _timestampMeta = const VerificationMeta('timestamp');
+  @override
+  late final GeneratedColumn<DateTime> timestamp = GeneratedColumn<DateTime>(
+      'timestamp', aliasedName, false,
+      type: DriftSqlType.dateTime, requiredDuringInsert: true);
+  final VerificationMeta _descriptionMeta =
+      const VerificationMeta('description');
+  @override
+  late final GeneratedColumn<String> description = GeneratedColumn<String>(
+      'description', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  final VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+      'id', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  @override
+  List<GeneratedColumn> get $columns => [ipAddress, timestamp, description, id];
+  @override
+  String get aliasedName => _alias ?? 'logs';
+  @override
+  String get actualTableName => 'logs';
+  @override
+  VerificationContext validateIntegrity(Insertable<Log> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('ip_address')) {
+      context.handle(_ipAddressMeta,
+          ipAddress.isAcceptableOrUnknown(data['ip_address']!, _ipAddressMeta));
+    } else if (isInserting) {
+      context.missing(_ipAddressMeta);
+    }
+    if (data.containsKey('timestamp')) {
+      context.handle(_timestampMeta,
+          timestamp.isAcceptableOrUnknown(data['timestamp']!, _timestampMeta));
+    } else if (isInserting) {
+      context.missing(_timestampMeta);
+    }
+    if (data.containsKey('description')) {
+      context.handle(
+          _descriptionMeta,
+          description.isAcceptableOrUnknown(
+              data['description']!, _descriptionMeta));
+    } else if (isInserting) {
+      context.missing(_descriptionMeta);
+    }
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => <GeneratedColumn>{};
+  @override
+  Log map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return Log(
+      ipAddress: attachedDatabase.options.types
+          .read(DriftSqlType.string, data['${effectivePrefix}ip_address'])!,
+      timestamp: attachedDatabase.options.types
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}timestamp'])!,
+      description: attachedDatabase.options.types
+          .read(DriftSqlType.string, data['${effectivePrefix}description'])!,
+      id: attachedDatabase.options.types
+          .read(DriftSqlType.string, data['${effectivePrefix}id'])!,
+    );
+  }
+
+  @override
+  $LogsTable createAlias(String alias) {
+    return $LogsTable(attachedDatabase, alias);
+  }
+}
+
 abstract class _$MyDatabase extends GeneratedDatabase {
   _$MyDatabase(QueryExecutor e) : super(e);
   late final $UsersTable users = $UsersTable(this);
   late final $PasswordsTable passwords = $PasswordsTable(this);
   late final $LoginsTable logins = $LoginsTable(this);
   late final $IpAddressesTable ipAddresses = $IpAddressesTable(this);
+  late final $LogsTable logs = $LogsTable(this);
   @override
   Iterable<TableInfo<Table, dynamic>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
   @override
   List<DatabaseSchemaEntity> get allSchemaEntities =>
-      [users, passwords, logins, ipAddresses];
+      [users, passwords, logins, ipAddresses, logs];
 }
