@@ -509,7 +509,7 @@ class Password extends DataClass implements Insertable<Password> {
   final String descritpion;
   final String login;
   final String sharedFor;
-  final bool deleted;
+  final String previousVersions;
   const Password(
       {required this.id,
       required this.password,
@@ -518,7 +518,7 @@ class Password extends DataClass implements Insertable<Password> {
       required this.descritpion,
       required this.login,
       required this.sharedFor,
-      required this.deleted});
+      required this.previousVersions});
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
@@ -529,7 +529,7 @@ class Password extends DataClass implements Insertable<Password> {
     map['descritpion'] = Variable<String>(descritpion);
     map['login'] = Variable<String>(login);
     map['shared_for'] = Variable<String>(sharedFor);
-    map['deleted'] = Variable<bool>(deleted);
+    map['previous_versions'] = Variable<String>(previousVersions);
     return map;
   }
 
@@ -542,7 +542,7 @@ class Password extends DataClass implements Insertable<Password> {
       descritpion: Value(descritpion),
       login: Value(login),
       sharedFor: Value(sharedFor),
-      deleted: Value(deleted),
+      previousVersions: Value(previousVersions),
     );
   }
 
@@ -557,7 +557,7 @@ class Password extends DataClass implements Insertable<Password> {
       descritpion: serializer.fromJson<String>(json['descritpion']),
       login: serializer.fromJson<String>(json['login']),
       sharedFor: serializer.fromJson<String>(json['sharedFor']),
-      deleted: serializer.fromJson<bool>(json['deleted']),
+      previousVersions: serializer.fromJson<String>(json['previousVersions']),
     );
   }
   @override
@@ -571,7 +571,7 @@ class Password extends DataClass implements Insertable<Password> {
       'descritpion': serializer.toJson<String>(descritpion),
       'login': serializer.toJson<String>(login),
       'sharedFor': serializer.toJson<String>(sharedFor),
-      'deleted': serializer.toJson<bool>(deleted),
+      'previousVersions': serializer.toJson<String>(previousVersions),
     };
   }
 
@@ -583,7 +583,7 @@ class Password extends DataClass implements Insertable<Password> {
           String? descritpion,
           String? login,
           String? sharedFor,
-          bool? deleted}) =>
+          String? previousVersions}) =>
       Password(
         id: id ?? this.id,
         password: password ?? this.password,
@@ -592,7 +592,7 @@ class Password extends DataClass implements Insertable<Password> {
         descritpion: descritpion ?? this.descritpion,
         login: login ?? this.login,
         sharedFor: sharedFor ?? this.sharedFor,
-        deleted: deleted ?? this.deleted,
+        previousVersions: previousVersions ?? this.previousVersions,
       );
   @override
   String toString() {
@@ -604,14 +604,14 @@ class Password extends DataClass implements Insertable<Password> {
           ..write('descritpion: $descritpion, ')
           ..write('login: $login, ')
           ..write('sharedFor: $sharedFor, ')
-          ..write('deleted: $deleted')
+          ..write('previousVersions: $previousVersions')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode => Object.hash(
-      id, password, idUser, webAddress, descritpion, login, sharedFor, deleted);
+  int get hashCode => Object.hash(id, password, idUser, webAddress, descritpion,
+      login, sharedFor, previousVersions);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -623,7 +623,7 @@ class Password extends DataClass implements Insertable<Password> {
           other.descritpion == this.descritpion &&
           other.login == this.login &&
           other.sharedFor == this.sharedFor &&
-          other.deleted == this.deleted);
+          other.previousVersions == this.previousVersions);
 }
 
 class PasswordsCompanion extends UpdateCompanion<Password> {
@@ -634,7 +634,7 @@ class PasswordsCompanion extends UpdateCompanion<Password> {
   final Value<String> descritpion;
   final Value<String> login;
   final Value<String> sharedFor;
-  final Value<bool> deleted;
+  final Value<String> previousVersions;
   const PasswordsCompanion({
     this.id = const Value.absent(),
     this.password = const Value.absent(),
@@ -643,7 +643,7 @@ class PasswordsCompanion extends UpdateCompanion<Password> {
     this.descritpion = const Value.absent(),
     this.login = const Value.absent(),
     this.sharedFor = const Value.absent(),
-    this.deleted = const Value.absent(),
+    this.previousVersions = const Value.absent(),
   });
   PasswordsCompanion.insert({
     this.id = const Value.absent(),
@@ -653,7 +653,7 @@ class PasswordsCompanion extends UpdateCompanion<Password> {
     required String descritpion,
     required String login,
     this.sharedFor = const Value.absent(),
-    this.deleted = const Value.absent(),
+    this.previousVersions = const Value.absent(),
   })  : password = Value(password),
         idUser = Value(idUser),
         webAddress = Value(webAddress),
@@ -667,7 +667,7 @@ class PasswordsCompanion extends UpdateCompanion<Password> {
     Expression<String>? descritpion,
     Expression<String>? login,
     Expression<String>? sharedFor,
-    Expression<bool>? deleted,
+    Expression<String>? previousVersions,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
@@ -677,7 +677,7 @@ class PasswordsCompanion extends UpdateCompanion<Password> {
       if (descritpion != null) 'descritpion': descritpion,
       if (login != null) 'login': login,
       if (sharedFor != null) 'shared_for': sharedFor,
-      if (deleted != null) 'deleted': deleted,
+      if (previousVersions != null) 'previous_versions': previousVersions,
     });
   }
 
@@ -689,7 +689,7 @@ class PasswordsCompanion extends UpdateCompanion<Password> {
       Value<String>? descritpion,
       Value<String>? login,
       Value<String>? sharedFor,
-      Value<bool>? deleted}) {
+      Value<String>? previousVersions}) {
     return PasswordsCompanion(
       id: id ?? this.id,
       password: password ?? this.password,
@@ -698,7 +698,7 @@ class PasswordsCompanion extends UpdateCompanion<Password> {
       descritpion: descritpion ?? this.descritpion,
       login: login ?? this.login,
       sharedFor: sharedFor ?? this.sharedFor,
-      deleted: deleted ?? this.deleted,
+      previousVersions: previousVersions ?? this.previousVersions,
     );
   }
 
@@ -726,8 +726,8 @@ class PasswordsCompanion extends UpdateCompanion<Password> {
     if (sharedFor.present) {
       map['shared_for'] = Variable<String>(sharedFor.value);
     }
-    if (deleted.present) {
-      map['deleted'] = Variable<bool>(deleted.value);
+    if (previousVersions.present) {
+      map['previous_versions'] = Variable<String>(previousVersions.value);
     }
     return map;
   }
@@ -742,7 +742,7 @@ class PasswordsCompanion extends UpdateCompanion<Password> {
           ..write('descritpion: $descritpion, ')
           ..write('login: $login, ')
           ..write('sharedFor: $sharedFor, ')
-          ..write('deleted: $deleted')
+          ..write('previousVersions: $previousVersions')
           ..write(')'))
         .toString();
   }
@@ -795,15 +795,15 @@ class $PasswordsTable extends Passwords
       'shared_for', aliasedName, false,
       type: DriftSqlType.string,
       requiredDuringInsert: false,
-      defaultValue: const Constant('1,5,'));
-  final VerificationMeta _deletedMeta = const VerificationMeta('deleted');
+      defaultValue: const Constant(''));
+  final VerificationMeta _previousVersionsMeta =
+      const VerificationMeta('previousVersions');
   @override
-  late final GeneratedColumn<bool> deleted = GeneratedColumn<bool>(
-      'deleted', aliasedName, false,
-      type: DriftSqlType.bool,
+  late final GeneratedColumn<String> previousVersions = GeneratedColumn<String>(
+      'previous_versions', aliasedName, false,
+      type: DriftSqlType.string,
       requiredDuringInsert: false,
-      defaultConstraints: 'CHECK ("deleted" IN (0, 1))',
-      defaultValue: const Constant(false));
+      defaultValue: const Constant(''));
   @override
   List<GeneratedColumn> get $columns => [
         id,
@@ -813,7 +813,7 @@ class $PasswordsTable extends Passwords
         descritpion,
         login,
         sharedFor,
-        deleted
+        previousVersions
       ];
   @override
   String get aliasedName => _alias ?? 'passwords';
@@ -865,9 +865,11 @@ class $PasswordsTable extends Passwords
       context.handle(_sharedForMeta,
           sharedFor.isAcceptableOrUnknown(data['shared_for']!, _sharedForMeta));
     }
-    if (data.containsKey('deleted')) {
-      context.handle(_deletedMeta,
-          deleted.isAcceptableOrUnknown(data['deleted']!, _deletedMeta));
+    if (data.containsKey('previous_versions')) {
+      context.handle(
+          _previousVersionsMeta,
+          previousVersions.isAcceptableOrUnknown(
+              data['previous_versions']!, _previousVersionsMeta));
     }
     return context;
   }
@@ -892,8 +894,8 @@ class $PasswordsTable extends Passwords
           .read(DriftSqlType.string, data['${effectivePrefix}login'])!,
       sharedFor: attachedDatabase.options.types
           .read(DriftSqlType.string, data['${effectivePrefix}shared_for'])!,
-      deleted: attachedDatabase.options.types
-          .read(DriftSqlType.bool, data['${effectivePrefix}deleted'])!,
+      previousVersions: attachedDatabase.options.types.read(
+          DriftSqlType.string, data['${effectivePrefix}previous_versions'])!,
     );
   }
 

@@ -42,7 +42,9 @@ class _PasswordShownState extends State<PasswordShown> {
 
   @override
   Widget build(BuildContext context) {
-    return Center(
+    print('password versions:');
+    print(widget.password.previousVersions.split(',').length);
+    return SingleChildScrollView(
       child: Padding(
         padding: const EdgeInsets.all(32),
         child: Column(
@@ -174,6 +176,7 @@ class _PasswordShownState extends State<PasswordShown> {
                         BlocProvider.of<UserCubit>(context).editPassword(
                           widget.password.id,
                           passwordDecodedController.text,
+                          true,
                         );
                         setState(() {
                           editMode = false;
@@ -195,8 +198,44 @@ class _PasswordShownState extends State<PasswordShown> {
                       Icons.delete,
                       color: Color.fromARGB(255, 197, 92, 92),
                     ),
-                  )
+                  ),
                 ],
+              ),
+            const Divider(),
+            if (widget.editable && widget.password.previousVersions.isNotEmpty)
+              ListView.builder(
+                shrinkWrap: true,
+                itemCount: widget.password.previousVersions.split(',').length,
+                itemBuilder: (BuildContext context, int index) {
+                  final list = widget.password.previousVersions.split(',');
+                  if (index == 0) return const SizedBox();
+                  return ListTile(
+                    title: Text('Previous variant $index'),
+                    subtitle: Text(
+                      !showPassword
+                          ? list[index]
+                          : Encrypter.decryptPassword(
+                              list[index],
+                              BlocProvider.of<UserCubit>(context)
+                                  .currentUser!
+                                  .salt,
+                            ),
+                    ),
+                    trailing: IconButton(
+                      onPressed: () =>
+                          BlocProvider.of<UserCubit>(context).editPassword(
+                              widget.password.id,
+                              Encrypter.decryptPassword(
+                                list[index],
+                                BlocProvider.of<UserCubit>(context)
+                                    .currentUser!
+                                    .salt,
+                              ),
+                              false),
+                      icon: const Icon(Icons.edit),
+                    ),
+                  );
+                },
               ),
           ],
         ),

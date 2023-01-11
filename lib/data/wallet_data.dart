@@ -12,8 +12,8 @@ class Passwords extends Table {
   TextColumn get webAddress => text()();
   TextColumn get descritpion => text()();
   TextColumn get login => text()();
-  TextColumn get sharedFor => text().withDefault(const Constant('1,5,'))();
-  BoolColumn get deleted => boolean().withDefault(const Constant(false))();
+  TextColumn get sharedFor => text().withDefault(const Constant(''))();
+  TextColumn get previousVersions => text().withDefault(const Constant(''))();
 }
 
 @DataClassName('User')
@@ -64,6 +64,17 @@ class MyDatabase extends _$MyDatabase {
 
   Future<void> addLog(LogsCompanion entry) async {
     await into(logs).insert(entry);
+  }
+
+  Future<Password> getPasswordById(int id) async {
+    final pass = await (select(passwords)
+          ..where(
+            (tbl) => tbl.id.equals(id),
+          )
+          ..limit(1))
+        .getSingle();
+
+    return pass;
   }
 
   Future<User> getUserById(int id) async {
@@ -219,28 +230,17 @@ class MyDatabase extends _$MyDatabase {
     return into(ipAddresses).insert(entry);
   }
 
-  Future<int> editPassword(int id, String password) {
+  Future<int> editPassword(int id, String password, String previousVersions) {
     return (update(passwords)..where((tbl) => tbl.id.equals(id))).write(
       PasswordsCompanion(
         password: Value(password),
+        previousVersions: Value(previousVersions),
       ),
     );
   }
 
   Future<int> removePassword(int id) {
-    return (update(passwords)..where((tbl) => tbl.id.equals(id))).write(
-      const PasswordsCompanion(
-        deleted: Value(true),
-      ),
-    );
-  }
-
-  Future<int> unremovePassword(int id) {
-    return (update(passwords)..where((tbl) => tbl.id.equals(id))).write(
-      const PasswordsCompanion(
-        deleted: Value(false),
-      ),
-    );
+    return (delete(passwords)..where((tbl) => tbl.id.equals(id))).go();
   }
 
   Future<List<Password>> getAllUserPasswords(int userId) async {

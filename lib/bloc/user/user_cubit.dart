@@ -125,13 +125,21 @@ class UserCubit extends Cubit<UserState> {
     );
   }
 
-  Future<void> editPassword(int id, String password) async {
+  Future<void> editPassword(int id, String password, bool addToHistory) async {
     try {
+      final oldPassword = await database.getPasswordById(id);
       final hash = Encrypter.encryptPassword(password, currentUser!.salt);
-      await database.editPassword(id, hash);
+      final previousVersions = oldPassword.previousVersions.split(',');
+
+      if (addToHistory) {
+        previousVersions.add(oldPassword.password);
+      }
+
+      await database.editPassword(id, hash, previousVersions.join(','));
       final passwords = await database.getAllUserPasswords(
         currentUser!.id,
       );
+
       final ipResponse = await RestClient.getIpData();
 
       await database.addLog(
@@ -152,37 +160,6 @@ class UserCubit extends Cubit<UserState> {
         stackTrace: s,
       );
       showBadToast('Error while editing password');
-    }
-  }
-
-  Future<void> unremovePassword(int id) async {
-    try {
-      final user = currentUser!;
-
-      await database.unremovePassword(id);
-      final passwords = await database.getAllUserPasswords(
-        currentUser!.id,
-      );
-      final ipResponse = await RestClient.getIpData();
-
-      await database.addLog(
-        LogsCompanion(
-          ipAddress: Value(ipResponse.ip!),
-          timestamp: Value(DateTime.now()),
-          description: const Value('Reverted password'),
-          id: Value(currentUser!.id.toString()),
-        ),
-      );
-      final logs = await database.getUserLogs(currentUser!.id.toString());
-      emit(
-        UserLoggedIn(user, passwords, null, false, logs),
-      );
-    } catch (e, s) {
-      log(
-        'Error while unremoving password',
-        stackTrace: s,
-      );
-      showBadToast('Error while unremoving password');
     }
   }
 

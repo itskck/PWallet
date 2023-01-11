@@ -25,18 +25,13 @@ class Options extends StatelessWidget {
 
     final List<Password> userPasswords = [];
     final List<Password> sharedPasswords = [];
-    final List<Password> removedPasswords = [];
 
     for (var p in passwords) {
-      if (p.deleted) {
-        removedPasswords.add(p);
+      if (p.sharedFor.split(',').contains(
+          BlocProvider.of<UserCubit>(context).currentUser!.id.toString())) {
+        sharedPasswords.add(p);
       } else {
-        if (p.sharedFor.split(',').contains(
-            BlocProvider.of<UserCubit>(context).currentUser!.id.toString())) {
-          sharedPasswords.add(p);
-        } else {
-          userPasswords.add(p);
-        }
+        userPasswords.add(p);
       }
     }
 
@@ -87,22 +82,6 @@ class Options extends StatelessWidget {
           const Padding(
             padding: EdgeInsets.only(top: 50),
             child: Text('Actions'),
-          ),
-          const Text('Removed passwords'),
-          const Divider(),
-          ListView.builder(
-            shrinkWrap: true,
-            itemCount: removedPasswords.length,
-            itemBuilder: (BuildContext context, int index) {
-              return ListTile(
-                title: Text(removedPasswords[index].webAddress),
-                trailing: IconButton(
-                  icon: const Icon(Icons.rotate_left),
-                  onPressed: () => BlocProvider.of<UserCubit>(context)
-                      .unremovePassword(removedPasswords[index].id),
-                ),
-              );
-            },
           ),
           const Divider(),
           ListTile(
